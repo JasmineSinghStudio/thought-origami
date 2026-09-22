@@ -3,16 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Thought Origami</title>
 
 <style>
-
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500&display=swap');
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -30,10 +26,7 @@ body {
 h1 {
   margin: 0;
   text-align: center;
-  font-family: Fraunces, Georgia, serif;
-  font-size: 48px;
-  font-weight: 400;
-  line-height: 1.05;
+  font: 400 48px/1.05 Fraunces, Georgia, serif;
   letter-spacing: -0.035em;
 }
 
@@ -45,20 +38,12 @@ h1 {
   color: #777;
 }
 
-
-/* =========================
-   GAME BOARD
-   ========================= */
-
 .station {
   position: relative;
   height: 540px;
-
   border: 1px solid #ccc;
   border-radius: 18px;
-
   background: #fbfbfa;
-
   overflow: hidden;
 }
 
@@ -70,61 +55,37 @@ h1 {
 .empty {
   position: absolute;
   inset: 0;
-
   display: grid;
   place-items: center;
-
   color: #aaa;
   font-size: 12px;
-
   pointer-events: none;
 }
 
-
-/* =========================
-   THOUGHT INPUT
-   ========================= */
-
 .composer {
   position: absolute;
-
   left: 0;
   right: 0;
   bottom: 0;
-
   height: 100px;
-
   display: flex;
   gap: 10px;
-
   padding: 16px;
-
   border-top: 1px solid #ddd;
-
   background: rgba(251,251,250,.97);
 }
 
 textarea {
   min-width: 0;
-
   flex: 1;
-
   resize: none;
-
   border: 1px solid #ccc;
   border-radius: 11px;
-
   padding: 13px 14px;
-
   outline: none;
-
   background: white;
-
   color: #222;
-
-  font-family: Inter, sans-serif;
-  font-size: 14px;
-  line-height: 1.4;
+  font: 14px/1.4 Inter, sans-serif;
 }
 
 textarea:focus {
@@ -133,43 +94,30 @@ textarea:focus {
 
 .fold-button {
   width: 105px;
-
   border: 0;
   border-radius: 11px;
-
   background: #222;
   color: white;
-
   cursor: pointer;
-
-  font-family: Inter, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
+  font: 500 13px Inter, sans-serif;
 }
 
 .fold-button:hover {
   background: #444;
 }
 
-
 /* =========================
-   PAPER CRANE
+   REAL PAPER CRANE
    ========================= */
 
 .crane {
   position: absolute;
-
   width: 155px;
   height: 120px;
-
   padding: 0;
-
   border: 0;
-
   background: transparent;
-
   cursor: pointer;
-
   transition: transform .2s ease;
 }
 
@@ -179,303 +127,409 @@ textarea:focus {
 
 .crane img {
   display: block;
-
   width: 100%;
   height: 100%;
-
   object-fit: contain;
-
   pointer-events: none;
 }
 
+/* =========================
+   FOLDING ANIMATION
+   ========================= */
+
+.folding {
+  position: absolute;
+  width: 155px;
+  height: 120px;
+  pointer-events: none;
+  z-index: 5;
+  perspective: 700px;
+}
+
+.folding-paper {
+  position: absolute;
+  left: 22px;
+  top: 15px;
+  width: 110px;
+  height: 88px;
+  background: #fff;
+  border: 1px solid #d5d5d2;
+  transform: rotate(-2deg);
+  transform-origin: 50% 50%;
+  box-shadow: 0 3px 8px rgba(0,0,0,.04);
+  animation: paperBase 1.45s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+.folding-paper::before,
+.folding-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fafafa;
+  border: 1px solid #dededb;
+  transform-origin: 50% 50%;
+}
+
+.folding-paper::before {
+  clip-path: polygon(0 0, 100% 0, 50% 52%);
+  animation: foldTop 1.45s cubic-bezier(.35,0,.2,1) forwards;
+}
+
+.folding-paper::after {
+  clip-path: polygon(0 100%, 100% 100%, 50% 48%);
+  animation: foldBottom 1.45s cubic-bezier(.35,0,.2,1) forwards;
+}
+
+.fold-wing-left,
+.fold-wing-right {
+  position: absolute;
+  width: 76px;
+  height: 72px;
+  top: 8px;
+  background: #fdfdfd;
+  border: 1px solid #dededb;
+  opacity: 0;
+}
+
+.fold-wing-left {
+  left: 0;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform-origin: 100% 50%;
+  animation: wingLeft 1.45s cubic-bezier(.35,0,.2,1) forwards;
+}
+
+.fold-wing-right {
+  right: 0;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  transform-origin: 0 50%;
+  animation: wingRight 1.45s cubic-bezier(.35,0,.2,1) forwards;
+}
+
+.fold-neck {
+  position: absolute;
+  width: 18px;
+  height: 66px;
+  left: 69px;
+  top: 4px;
+  background: #fff;
+  border: 1px solid #d8d8d5;
+  clip-path: polygon(35% 100%, 0 0, 100% 8%, 67% 100%);
+  opacity: 0;
+  transform-origin: 50% 90%;
+  animation: neckRise 1.45s cubic-bezier(.35,0,.2,1) forwards;
+}
+
+.crane img {
+  opacity: 0;
+  transform: scale(.72) rotate(-3deg);
+  animation: craneReveal .38s ease-out 1.18s forwards;
+}
+
+.crane.folding-in {
+  pointer-events: none;
+}
+
+@keyframes paperBase {
+  0% {
+    transform: rotate(-2deg) scale(.55);
+    opacity: 0;
+  }
+
+  14% {
+    opacity: 1;
+  }
+
+  45% {
+    transform: rotate(-2deg) scale(1);
+  }
+
+  100% {
+    transform: rotate(-5deg) scale(.78);
+    opacity: 0;
+  }
+}
+
+@keyframes foldTop {
+  0%, 22% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+
+  54% {
+    transform: rotateX(-125deg);
+    opacity: .85;
+  }
+
+  100% {
+    transform: rotateX(-165deg) translateY(8px);
+    opacity: 0;
+  }
+}
+
+@keyframes foldBottom {
+  0%, 28% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+
+  58% {
+    transform: rotateX(125deg);
+    opacity: .82;
+  }
+
+  100% {
+    transform: rotateX(160deg) translateY(-7px);
+    opacity: 0;
+  }
+}
+
+@keyframes wingLeft {
+  0%, 48% {
+    opacity: 0;
+    transform: rotateY(-80deg);
+  }
+
+  58% {
+    opacity: 1;
+    transform: rotateY(-12deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotateY(0deg) translateX(-8px);
+  }
+}
+
+@keyframes wingRight {
+  0%, 48% {
+    opacity: 0;
+    transform: rotateY(80deg);
+  }
+
+  58% {
+    opacity: 1;
+    transform: rotateY(12deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotateY(0deg) translateX(8px);
+  }
+}
+
+@keyframes neckRise {
+  0%, 66% {
+    opacity: 0;
+    transform: rotateX(70deg) scaleY(.5);
+  }
+
+  82% {
+    opacity: 1;
+    transform: rotateX(12deg) scaleY(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotateX(0deg) translateY(-4px);
+  }
+}
+
+@keyframes craneReveal {
+  from {
+    opacity: 0;
+    transform: scale(.72) rotate(-3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folding-paper,
+  .folding-paper::before,
+  .folding-paper::after,
+  .fold-wing-left,
+  .fold-wing-right,
+  .fold-neck,
+  .crane img {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+  }
+}
 
 /* =========================
-   THOUGHT REVEAL
+   THOUGHT NOTE
    ========================= */
 
 .thought-note {
   position: absolute;
-
   z-index: 10;
-
   left: 50%;
   top: 50%;
-
   width: min(350px, calc(100% - 32px));
-
   transform: translate(-50%, -50%);
-
   padding: 24px;
-
   border: 1px solid #ccc;
-
   background: white;
-
   text-align: center;
-
   box-shadow: 0 14px 30px rgba(0,0,0,.08);
-
   animation: noteIn .3s ease-out;
 }
 
 .thought-text {
-  font-family: Fraunces, Georgia, serif;
-
-  font-size: 22px;
-
-  line-height: 1.4;
-
+  font: 400 22px/1.4 Fraunces, Georgia, serif;
   overflow-wrap: anywhere;
 }
 
 .meta {
   margin-top: 14px;
-
   color: #999;
-
   font-size: 9px;
-
   letter-spacing: .16em;
-
   text-transform: uppercase;
 }
 
-
 /* =========================
-   RELEASE ANIMATION
+   FLIGHT
    ========================= */
 
 .fly {
   pointer-events: none;
-
-  animation:
-    fly 1.7s ease-in forwards;
+  animation: fly 1.7s ease-in forwards;
 }
 
 .released {
   position: absolute;
-
   z-index: 12;
-
   left: 50%;
   top: 46%;
-
   transform: translate(-50%, -50%);
-
   white-space: nowrap;
-
-  font-family: Fraunces, Georgia, serif;
-
-  font-size: 25px;
-
-  font-style: italic;
-
-  animation:
-    released 2.1s ease forwards;
+  font: italic 400 25px/1 Fraunces, Georgia, serif;
+  animation: released 2.1s ease forwards;
 }
 
+@keyframes fly {
+  0% {
+    opacity: 1;
+    transform: translate(0,0) rotate(0);
+  }
+
+  25% {
+    transform: translate(35px,-18px) rotate(3deg);
+  }
+
+  50% {
+    transform: translate(85px,8px) rotate(-4deg);
+  }
+
+  75% {
+    transform: translate(150px,-28px) rotate(3deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(280px,-90px) rotate(7deg);
+  }
+}
+
+@keyframes released {
+  0%, 12% {
+    opacity: 0;
+    transform: translate(-50%,-50%) translateY(8px);
+  }
+
+  24%, 72% {
+    opacity: 1;
+    transform: translate(-50%,-50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%,-50%) translateY(-6px);
+  }
+}
 
 /* =========================
-   WELCOME POPUP
+   WELCOME
    ========================= */
 
 .welcome-backdrop {
   position: fixed;
-
   z-index: 100;
-
   inset: 0;
-
   display: grid;
-
   place-items: center;
-
   padding: 24px;
-
   background: rgba(247,247,245,.72);
 }
 
 .welcome {
   position: relative;
-
   width: min(510px, 100%);
-
   padding: 34px;
-
   border: 1px solid #ccc;
-
   border-radius: 16px;
-
   background: white;
-
-  box-shadow:
-    0 20px 55px rgba(0,0,0,.12);
+  box-shadow: 0 20px 55px rgba(0,0,0,.12);
 }
 
 .welcome h2 {
   margin: 0 34px 14px 0;
-
-  font-family: Fraunces, Georgia, serif;
-
-  font-size: 30px;
-
-  font-weight: 400;
-
-  line-height: 1.15;
+  font: 400 30px/1.15 Fraunces, Georgia, serif;
 }
 
 .welcome p {
   margin: 0 0 18px;
-
   color: #555;
-
   font-size: 14px;
-
   line-height: 1.65;
 }
 
 .steps {
   margin-top: 18px;
-
   color: #999;
-
   font-size: 10px;
-
   letter-spacing: .14em;
 }
 
 .begin {
   margin-top: 24px;
-
   border: 0;
-
   border-radius: 9px;
-
   padding: 11px 20px;
-
   background: #222;
-
   color: white;
-
   cursor: pointer;
-
-  font-family: Inter, sans-serif;
-
-  font-size: 13px;
-
-  font-weight: 500;
+  font: 500 13px Inter, sans-serif;
 }
 
 .close {
   position: absolute;
-
   top: 12px;
   right: 14px;
-
   width: 34px;
   height: 34px;
-
   border: 0;
-
   background: transparent;
-
   color: #777;
-
   cursor: pointer;
-
   font-size: 23px;
 }
 
-
-/* =========================
-   ANIMATIONS
-   ========================= */
-
 @keyframes noteIn {
-
   from {
     opacity: 0;
-
-    transform:
-      translate(-50%, -47%)
-      scale(.97);
+    transform: translate(-50%, -47%) scale(.97);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      translate(-50%, -50%)
-      scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
-
 }
-
-@keyframes fly {
-
-  0% {
-    opacity: 1;
-
-    transform:
-      translate(0,0)
-      rotate(0);
-  }
-
-  25% {
-    transform:
-      translate(35px,-18px)
-      rotate(3deg);
-  }
-
-  50% {
-    transform:
-      translate(85px,8px)
-      rotate(-4deg);
-  }
-
-  75% {
-    transform:
-      translate(150px,-28px)
-      rotate(3deg);
-  }
-
-  100% {
-    opacity: 0;
-
-    transform:
-      translate(280px,-90px)
-      rotate(7deg);
-  }
-
-}
-
-@keyframes released {
-
-  0%, 12% {
-    opacity: 0;
-
-    transform:
-      translate(-50%,-50%)
-      translateY(8px);
-  }
-
-  24%, 72% {
-    opacity: 1;
-
-    transform:
-      translate(-50%,-50%);
-  }
-
-  100% {
-    opacity: 0;
-
-    transform:
-      translate(-50%,-50%)
-      translateY(-6px);
-  }
-
-}
-
 
 /* =========================
    MOBILE
@@ -484,10 +538,7 @@ textarea:focus {
 @media (max-width: 600px) {
 
   .page {
-    padding:
-      34px
-      14px
-      40px;
+    padding: 34px 14px 40px;
   }
 
   h1 {
@@ -512,62 +563,39 @@ textarea:focus {
   }
 
   .welcome {
-    padding:
-      28px
-      24px;
+    padding: 28px 24px;
   }
-
 }
-
 </style>
 </head>
 
-
 <body>
-
 
 <div class="page">
 
-
-  <h1>
-    Thought Origami
-  </h1>
-
+  <h1>Thought Origami</h1>
 
   <div class="subtitle">
     fold a thought · notice it · let it go
   </div>
 
-
   <main class="station">
 
+    <div class="field" id="field">
 
-    <div
-      class="field"
-      id="field"
-    >
-
-      <div
-        class="empty"
-        id="empty"
-      >
+      <div class="empty" id="empty">
         A place for passing thoughts.
       </div>
 
     </div>
 
-
-    <form
-      class="composer"
-      id="composer"
-    >
+    <form class="composer" id="composer">
 
       <textarea
         id="thoughtInput"
         aria-label="Thought"
         placeholder="Leave a thought here..."
       ></textarea>
-
 
       <button
         class="fold-button"
@@ -578,12 +606,9 @@ textarea:focus {
 
     </form>
 
-
   </main>
 
-
 </div>
-
 
 
 <!-- =========================
@@ -595,13 +620,11 @@ textarea:focus {
   id="welcome"
 >
 
-
   <section
     class="welcome"
     role="dialog"
     aria-modal="true"
   >
-
 
     <button
       class="close"
@@ -612,30 +635,23 @@ textarea:focus {
       ×
     </button>
 
-
     <h2>
       A place to let a thought go.
     </h2>
-
 
     <p>
       We all go through emotions. This game is meant to help you visualize your thoughts as you let them go.
     </p>
 
-
     <p>
-
       <strong>
         Write a thought. Click Fold it to turn it into a paper crane, then click the crane to let it go.
       </strong>
-
     </p>
-
 
     <div class="steps">
       write a thought · fold it · let it go
     </div>
-
 
     <button
       class="begin"
@@ -645,163 +661,132 @@ textarea:focus {
       Begin
     </button>
 
-
   </section>
-
 
 </div>
 
 
-
 <script>
 
-
-const field =
-  document.getElementById(
-    "field"
-  );
-
-
-const empty =
-  document.getElementById(
-    "empty"
-  );
-
-
-const composer =
-  document.getElementById(
-    "composer"
-  );
-
-
-const input =
-  document.getElementById(
-    "thoughtInput"
-  );
-
+const field = document.getElementById("field");
+const empty = document.getElementById("empty");
+const composer = document.getElementById("composer");
+const input = document.getElementById("thoughtInput");
 
 let craneCount = 0;
 
 
-
 /* =========================
-   CREATE CRANE
+   FOLD A THOUGHT
    ========================= */
 
 function addCrane(thought) {
 
-
   empty.style.opacity = "0";
 
+  const crane = document.createElement("button");
 
-  const crane =
-    document.createElement(
-      "button"
-    );
-
-
-  crane.type =
-    "button";
-
-
-  crane.className =
-    "crane";
-
-
+  crane.type = "button";
+  crane.className = "crane";
   crane.setAttribute(
     "aria-label",
     "Release thought"
   );
 
-
   const rect =
     field.getBoundingClientRect();
 
-
   const maxX =
-    Math.max(
-      20,
-      rect.width - 180
-    );
-
+    Math.max(20, rect.width - 180);
 
   const maxY =
-    Math.max(
-      20,
-      rect.height - 145
-    );
-
+    Math.max(20, rect.height - 145);
 
   crane.style.left =
-    (
-      25 +
+    (25 +
       Math.random() *
-      Math.max(
-        1,
-        maxX - 25
-      )
+      Math.max(1, maxX - 25)
     ) + "px";
 
-
   crane.style.top =
-    (
-      25 +
+    (25 +
       Math.random() *
-      Math.max(
-        1,
-        maxY - 25
-      )
+      Math.max(1, maxY - 25)
     ) + "px";
 
 
   /*
     IMPORTANT:
-    Put thought_origami_white_crane.png
-    in the SAME folder as index.html.
+    Keep thought_origami_white_crane.png
+    in the SAME GitHub folder as index.html.
   */
 
-
   const image =
-    document.createElement(
-      "img"
-    );
-
+    document.createElement("img");
 
   image.src =
     "thought_origami_white_crane.png";
 
+  image.alt = "";
 
-  image.alt =
-    "";
+  crane.appendChild(image);
 
 
-  crane.appendChild(
-    image
+  /*
+    Folding paper animation
+  */
+
+  const folding =
+    document.createElement("div");
+
+  folding.className =
+    "folding";
+
+  folding.innerHTML = `
+    <div class="folding-paper"></div>
+    <div class="fold-wing-left"></div>
+    <div class="fold-wing-right"></div>
+    <div class="fold-neck"></div>
+  `;
+
+  crane.appendChild(folding);
+
+  crane.classList.add(
+    "folding-in"
   );
 
 
   crane.addEventListener(
     "click",
-    function() {
-
+    () => {
       releaseThought(
         crane,
         thought
       );
-
     }
   );
 
 
-  field.appendChild(
-    crane
-  );
-
+  field.appendChild(crane);
 
   craneCount++;
 
-}
 
+  /*
+    After the folding animation,
+    reveal the finished crane.
+  */
+
+  setTimeout(() => {
+
+    crane.classList.remove(
+      "folding-in"
+    );
+
+    folding.remove();
+
+  }, 1600);
+}
 
 
 /* =========================
@@ -813,51 +798,35 @@ function releaseThought(
   thought
 ) {
 
-
   if (
-    crane.classList.contains(
-      "fly"
-    )
+    crane.classList.contains("fly")
   ) {
-
     return;
-
   }
 
 
   const note =
-    document.createElement(
-      "div"
-    );
-
+    document.createElement("div");
 
   note.className =
     "thought-note";
 
 
   const text =
-    document.createElement(
-      "div"
-    );
-
+    document.createElement("div");
 
   text.className =
     "thought-text";
-
 
   text.textContent =
     thought;
 
 
   const meta =
-    document.createElement(
-      "div"
-    );
-
+    document.createElement("div");
 
   meta.className =
     "meta";
-
 
   meta.textContent =
     "notice · acknowledge · release";
@@ -868,92 +837,76 @@ function releaseThought(
     meta
   );
 
-
-  field.appendChild(
-    note
-  );
+  field.appendChild(note);
 
 
-  setTimeout(
-    function() {
+  /*
+    Let the thought sit for a moment.
+  */
+
+  setTimeout(() => {
+
+    note.remove();
+
+    crane.classList.add(
+      "fly"
+    );
 
 
-      note.remove();
+    /*
+      Crane flies away.
+    */
+
+    setTimeout(() => {
+
+      crane.remove();
+
+      craneCount--;
 
 
-      crane.classList.add(
-        "fly"
+      if (craneCount === 0) {
+
+        empty.style.opacity =
+          "1";
+
+      }
+
+
+      /*
+        Final message.
+      */
+
+      const released =
+        document.createElement("div");
+
+      released.className =
+        "released";
+
+      released.textContent =
+        "Thought, released.";
+
+      field.appendChild(
+        released
       );
 
 
-      setTimeout(
-        function() {
+      setTimeout(() => {
 
+        released.remove();
 
-          crane.remove();
+      }, 2100);
 
+    }, 1700);
 
-          craneCount--;
-
-
-          if (
-            craneCount === 0
-          ) {
-
-            empty.style.opacity =
-              "1";
-
-          }
-
-
-          const released =
-            document.createElement(
-              "div"
-            );
-
-
-          released.className =
-            "released";
-
-
-          released.textContent =
-            "Thought, released.";
-
-
-          field.appendChild(
-            released
-          );
-
-
-          setTimeout(
-            function() {
-
-              released.remove();
-
-            },
-            2100
-          );
-
-
-        },
-        1700
-      );
-
-
-    },
-    900
-  );
-
+  }, 900);
 }
 
 
-
 /* =========================
-   FOLD THOUGHT
+   FOLD BUTTON
    ========================= */
 
 function foldThought() {
-
 
   const thought =
     input.value.trim();
@@ -964,32 +917,20 @@ function foldThought() {
     input.focus();
 
     return;
-
   }
 
 
-  addCrane(
-    thought
-  );
+  addCrane(thought);
 
-
-  input.value =
-    "";
-
+  input.value = "";
 
   input.focus();
-
 }
 
 
-
-/* =========================
-   BUTTON
-   ========================= */
-
 composer.addEventListener(
   "submit",
-  function(event) {
+  event => {
 
     event.preventDefault();
 
@@ -999,32 +940,23 @@ composer.addEventListener(
 );
 
 
-
 /* =========================
-   ENTER KEY
-   =========================
-
-   Enter = fold
-
-   Shift + Enter = new line
-*/
+   ENTER = FOLD
+   SHIFT + ENTER = NEW LINE
+   ========================= */
 
 input.addEventListener(
   "keydown",
-  function(event) {
-
+  event => {
 
     if (
       event.key === "Enter" &&
       !event.shiftKey
     ) {
 
-
       event.preventDefault();
 
-
       foldThought();
-
 
     }
 
@@ -1032,30 +964,22 @@ input.addEventListener(
 );
 
 
-
 /* =========================
-   WELCOME POPUP
+   WELCOME
    ========================= */
 
 function closeWelcome() {
 
-
   document
-    .getElementById(
-      "welcome"
-    )
+    .getElementById("welcome")
     .remove();
 
-
   input.focus();
-
 }
 
 
 document
-  .getElementById(
-    "begin"
-  )
+  .getElementById("begin")
   .addEventListener(
     "click",
     closeWelcome
@@ -1063,14 +987,11 @@ document
 
 
 document
-  .getElementById(
-    "closeWelcome"
-  )
+  .getElementById("closeWelcome")
   .addEventListener(
     "click",
     closeWelcome
   );
-
 
 </script>
 
