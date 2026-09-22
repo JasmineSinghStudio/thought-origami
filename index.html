@@ -851,6 +851,185 @@ textarea:focus{border-color:#222}
   }
 }
 
+/* DONE / FINAL CUT SCENE */
+
+.done-wrap{
+  display:flex;
+  justify-content:center;
+  margin:16px auto 0;
+}
+
+.done-button{
+  width:min(420px,100%);
+  padding:14px 22px;
+  border:1px solid #777;
+  border-radius:8px;
+  background:#fff;
+  color:#171717;
+  cursor:pointer;
+  font:18px Georgia,"Times New Roman",serif;
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.done-button:hover{
+  transform:translateY(-2px);
+  border-color:#171717;
+  box-shadow:0 7px 18px rgba(0,0,0,.08);
+}
+
+.done-button:disabled{
+  opacity:.42;
+  cursor:default;
+  transform:none;
+  box-shadow:none;
+}
+
+.release-screen{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:none;
+  overflow:hidden;
+  background:#0b5da8;
+}
+
+.release-screen.visible{
+  display:block;
+}
+
+.release-sky{
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(to bottom, rgba(0,36,88,.08), rgba(255,255,255,.03) 55%, rgba(19,67,28,.04)),
+    url("thought_origami_release_landscape.jpg");
+  background-size:cover;
+  background-position:center center;
+  transform:scale(1.015);
+}
+
+.release-screen::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,.03),rgba(0,0,0,.02) 55%,rgba(0,0,0,.10));
+  pointer-events:none;
+}
+
+.release-cranes{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+}
+
+.release-crane{
+  position:absolute;
+  width:clamp(72px,9vw,145px);
+  opacity:0;
+  filter:drop-shadow(0 8px 7px rgba(0,0,0,.16));
+  animation:releaseSkyFlight var(--duration) ease-in-out var(--delay) forwards;
+}
+
+.release-crane img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+@keyframes releaseSkyFlight{
+  0%{
+    opacity:0;
+    transform:translate3d(-10vw, 0, 0) rotate(-7deg) scale(.72);
+  }
+  10%{
+    opacity:1;
+  }
+  30%{
+    transform:translate3d(var(--x1), var(--y1), 0) rotate(var(--tilt1)) scale(.94);
+  }
+  52%{
+    transform:translate3d(var(--x2), var(--y2), 0) rotate(var(--tilt2)) scale(1);
+  }
+  74%{
+    transform:translate3d(var(--x3), var(--y3), 0) rotate(var(--tilt3)) scale(.94);
+  }
+  92%{
+    opacity:1;
+  }
+  100%{
+    opacity:0;
+    transform:translate3d(112vw, var(--y4), 0) rotate(var(--tilt4)) scale(.82);
+  }
+}
+
+.release-copy{
+  position:absolute;
+  z-index:4;
+  left:50%;
+  top:72%;
+  transform:translate(-50%,-50%);
+  width:min(700px,calc(100% - 40px));
+  text-align:center;
+  color:#fff;
+  text-shadow:0 2px 18px rgba(0,0,0,.24);
+  pointer-events:none;
+}
+
+.release-title{
+  font:400 clamp(30px,4.5vw,56px)/1.1 Georgia,"Times New Roman",serif;
+}
+
+.play-again{
+  pointer-events:auto;
+  margin-top:28px;
+  padding:10px 20px;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:7px;
+  background:rgba(0,0,0,.08);
+  color:#fff;
+  cursor:pointer;
+  font:14px Arial,Helvetica,sans-serif;
+  backdrop-filter:blur(3px);
+  transition:background .2s ease, transform .2s ease;
+}
+
+.play-again:hover{
+  background:rgba(255,255,255,.16);
+  transform:translateY(-1px);
+}
+
+.release-close{
+  position:absolute;
+  z-index:5;
+  top:18px;
+  right:22px;
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:50%;
+  background:rgba(0,0,0,.08);
+  color:#fff;
+  cursor:pointer;
+  font-size:25px;
+  line-height:1;
+}
+
+@media(max-width:650px){
+  .done-button{
+    width:calc(100% - 24px);
+  }
+
+  .release-copy{
+    width:calc(100% - 28px);
+  }
+
+  .release-close{
+    top:12px;
+    right:12px;
+  }
+}
+
 /* WELCOME */
 
 .modal-backdrop{
@@ -1004,7 +1183,7 @@ textarea:focus{border-color:#222}
 
       <p>
         <strong>
-          Write a thought. Click "Fold" it to turn it into a paper
+          Write a thought. Click "Fold" to turn it into a paper
           crane, then click the crane to let it go.
         </strong>
       </p>
@@ -1022,6 +1201,26 @@ textarea:focus{border-color:#222}
   </div>
 
 </main>
+
+<div class="done-wrap">
+  <button type="button" class="done-button" id="doneButton">
+    Done with thoughts <span aria-hidden="true">→</span>
+  </button>
+</div>
+
+</div>
+
+<!-- FINAL RELEASE / CUT SCENE -->
+<div class="release-screen" id="releaseScreen" aria-hidden="true">
+  <div class="release-sky"></div>
+  <div class="release-cranes" id="releaseCranes"></div>
+
+  <button type="button" class="release-close" id="releaseClose" aria-label="Back to Thought Origami">×</button>
+
+  <div class="release-copy">
+    <div class="release-title" id="releaseTitle">Thoughts, released.</div>
+    <button type="button" class="play-again" id="playAgain">Play again</button>
+  </div>
 </div>
 
 <script>
@@ -1033,6 +1232,19 @@ const thoughtInput=document.getElementById("thoughtInput");
 const foldButton=document.getElementById("foldButton");
 const thoughtSpace=document.getElementById("thoughtSpace");
 const emptyMessage=document.getElementById("emptyMessage");
+const doneButton=document.getElementById("doneButton");
+const releaseScreen=document.getElementById("releaseScreen");
+const releaseCranes=document.getElementById("releaseCranes");
+const releaseTitle=document.getElementById("releaseTitle");
+const playAgain=document.getElementById("playAgain");
+const releaseClose=document.getElementById("releaseClose");
+
+let thoughtCount=0;
+let releaseAnimationToken=0;
+
+function updateDoneButton(){
+  doneButton.disabled=thoughtCount===0;
+}
 
 function beginGame(){
   welcomeModal.classList.add("hidden");
@@ -1340,6 +1552,108 @@ function showReleasedMessage(){
   );
 }
 
+function makeReleaseCrane(index,total){
+  const crane=document.createElement("div");
+  crane.className="release-crane";
+
+  const img=makeCraneImage();
+  crane.appendChild(img);
+
+  // Every thought becomes one real crane in the final landscape.
+  // Each crane gets its own path, size, height and gentle tilt.
+  const startY=8 + Math.random()*76;
+
+  const x1=18 + Math.random()*18;
+  const x2=38 + Math.random()*20;
+  const x3=62 + Math.random()*20;
+
+  const y1=startY + (Math.random()*24-12);
+  const y2=startY + (Math.random()*30-15);
+  const y3=startY + (Math.random()*24-12);
+  const y4=startY + (Math.random()*22-11);
+
+  crane.style.left="-12vw";
+  crane.style.top=startY+"vh";
+
+  crane.style.setProperty("--x1",x1+"vw");
+  crane.style.setProperty("--x2",x2+"vw");
+  crane.style.setProperty("--x3",x3+"vw");
+
+  crane.style.setProperty("--y1",y1-startY+"vh");
+  crane.style.setProperty("--y2",y2-startY+"vh");
+  crane.style.setProperty("--y3",y3-startY+"vh");
+  crane.style.setProperty("--y4",y4+"vh");
+
+  crane.style.setProperty("--tilt1",(Math.random()*10-5)+"deg");
+  crane.style.setProperty("--tilt2",(Math.random()*10-5)+"deg");
+  crane.style.setProperty("--tilt3",(Math.random()*10-5)+"deg");
+  crane.style.setProperty("--tilt4",(Math.random()*10-5)+"deg");
+
+  // A little variation keeps a group from looking mechanically duplicated.
+  crane.style.width=(72 + Math.random()*78)+"px";
+  crane.style.setProperty(
+    "--duration",
+    (6.5 + Math.random()*2.8)+"s"
+  );
+  crane.style.setProperty(
+    "--delay",
+    (index*0.18 + Math.random()*0.5)+"s"
+  );
+
+  return crane;
+}
+
+function showReleaseScreen(){
+  if(thoughtCount===0)return;
+
+  releaseAnimationToken++;
+  const token=releaseAnimationToken;
+
+  releaseTitle.textContent =
+    thoughtCount===1
+      ? "1 thought released."
+      : `${thoughtCount} thoughts released.`;
+
+  releaseCranes.innerHTML="";
+  releaseScreen.classList.add("visible");
+  releaseScreen.setAttribute("aria-hidden","false");
+
+  // One flying crane for every thought created in this session.
+  for(let i=0;i<thoughtCount;i++){
+    releaseCranes.appendChild(makeReleaseCrane(i,thoughtCount));
+  }
+
+  requestAnimationFrame(()=>{
+    if(token!==releaseAnimationToken)return;
+    releaseCranes.querySelectorAll(".release-crane").forEach(crane=>{
+      crane.style.animationPlayState="running";
+    });
+  });
+}
+
+function closeReleaseScreen(){
+  releaseAnimationToken++;
+  releaseScreen.classList.remove("visible");
+  releaseScreen.setAttribute("aria-hidden","true");
+  releaseCranes.innerHTML="";
+}
+
+function resetGame(){
+  closeReleaseScreen();
+  thoughtSpace.querySelectorAll(".crane,.thought-note,.released-message").forEach(el=>el.remove());
+  emptyMessage.style.opacity="1";
+  thoughtCount=0;
+  updateDoneButton();
+  thoughtInput.value="";
+  thoughtInput.focus();
+}
+
+doneButton.addEventListener("click",showReleaseScreen);
+playAgain.addEventListener("click",resetGame);
+releaseClose.addEventListener("click",closeReleaseScreen);
+
+updateDoneButton();
+
 thoughtForm.addEventListener(
   "submit",
   event=>{
@@ -1359,6 +1673,8 @@ thoughtForm.addEventListener(
     }
 
     thoughtInput.value="";
+    thoughtCount++;
+    updateDoneButton();
 
     foldThought(thought);
   }
@@ -1384,12 +1700,12 @@ document.addEventListener(
   "keydown",
   event=>{
 
-    if(
-      event.key==="Escape" &&
-      !welcomeModal.classList.contains("hidden")
-    ){
-
-      beginGame();
+    if(event.key==="Escape"){
+      if(!welcomeModal.classList.contains("hidden")){
+        beginGame();
+      }else if(releaseScreen.classList.contains("visible")){
+        closeReleaseScreen();
+      }
     }
   }
 );
