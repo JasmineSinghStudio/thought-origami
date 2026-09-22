@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Thought Origami</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #ffffff;
+  color: #222;
+  font-family: Inter, Arial, sans-serif;
+
+  display: flex;
+  justify-content: center;
+
+  padding: 48px 20px;
+}
+
+.page {
+  width: min(760px, 100%);
+}
+
+/* TITLE */
+
+h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 42px;
+  font-weight: 400;
+
+  text-align: center;
+
+  margin: 0 0 8px;
+
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  text-align: center;
+
+  font-size: 12px;
+
+  letter-spacing: .18em;
+
+  color: #888;
+
+  text-transform: uppercase;
+
+  margin-bottom: 30px;
+}
+
+
+/* MAIN GAME */
+
+.station {
+  height: 610px;
+
+  border: 1px solid #cfcfcf;
+
+  border-radius: 18px;
+
+  background: #fbfbfa;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+
+/* THOUGHT FIELD */
+
+.field {
+  position: absolute;
+
+  inset: 0 0 104px;
+}
+
+.empty {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  color: #aaa;
+
+  font-size: 12px;
+
+  letter-spacing: .05em;
+
+  pointer-events: none;
+
+  transition: opacity .3s;
+
+  white-space: nowrap;
+}
+
+
+/* INPUT AREA */
+
+.composer {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 104px;
+
+  border-top: 1px solid #ddd;
+
+  padding: 20px;
+
+  display: flex;
+
+  gap: 12px;
+
+  background: rgba(251,251,250,.97);
+}
+
+textarea {
+  flex: 1;
+
+  resize: none;
+
+  border: 1px solid #d1d1d1;
+
+  border-radius: 12px;
+
+  padding: 15px 16px;
+
+  background: white;
+
+  color: #222;
+
+  font: 14px Inter, Arial, sans-serif;
+
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #999;
+}
+
+button {
+  width: 110px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background: #222;
+
+  color: white;
+
+  font: 500 13px Inter, Arial, sans-serif;
+
+  cursor: pointer;
+}
+
+button:hover {
+  background: #444;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+
+/* CRANE */
+
+.crane {
+  position: absolute;
+
+  width: 92px;
+  height: 82px;
+
+  cursor: pointer;
+
+  transform-origin: center;
+
+  animation: settle .5s ease-out;
+
+  transition: transform .2s ease;
+}
+
+.crane:hover {
+  transform: translateY(-4px) rotate(-1deg);
+}
+
+.crane svg {
+  width: 100%;
+  height: 100%;
+
+  overflow: visible;
+
+  filter: drop-shadow(
+    0 5px 5px rgba(0,0,0,.08)
+  );
+}
+
+
+/* PAPER */
+
+.paper {
+  fill: #f1f1f0;
+
+  stroke: #777;
+
+  stroke-width: .8;
+
+  stroke-linejoin: round;
+}
+
+.paper-light {
+  fill: #fafafa;
+
+  stroke: #888;
+
+  stroke-width: .7;
+
+  stroke-linejoin: round;
+}
+
+.paper-mid {
+  fill: #e5e5e4;
+
+  stroke: #888;
+
+  stroke-width: .7;
+
+  stroke-linejoin: round;
+}
+
+.crease {
+  fill: none;
+
+  stroke: #aaa;
+
+  stroke-width: .65;
+}
+
+.detail {
+  fill: none;
+
+  stroke: #777;
+
+  stroke-width: .7;
+
+  stroke-linecap: round;
+}
+
+
+/* THOUGHT REVEAL */
+
+.note {
+  position: absolute;
+
+  z-index: 20;
+
+  left: 50%;
+  top: 50%;
+
+  width: min(330px, calc(100% - 40px));
+
+  transform: translate(-50%, -50%);
+
+  background: white;
+
+  border: 1px solid #cfcfcf;
+
+  box-shadow:
+    0 14px 35px rgba(0,0,0,.08);
+
+  padding: 25px;
+
+  text-align: center;
+
+  animation: noteIn .35s ease-out;
+}
+
+.note-text {
+  font-family: Fraunces, Georgia, serif;
+
+  font-size: 22px;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.note-meta {
+  margin-top: 15px;
+
+  color: #999;
+
+  font-size: 9px;
+
+  letter-spacing: .18em;
+
+  text-transform: uppercase;
+}
+
+
+/* RELEASE MESSAGE */
+
+.release {
+  position: absolute;
+
+  z-index: 30;
+
+  left: 50%;
+  top: 48%;
+
+  transform: translate(-50%, -50%);
+
+  font-family: Fraunces, Georgia, serif;
+
+  font-size: 25px;
+
+  font-style: italic;
+
+  white-space: nowrap;
+
+  opacity: 0;
+
+  animation: releaseIn 2.2s ease forwards;
+
+  pointer-events: none;
+}
+
+
+/* ANIMATIONS */
+
+@keyframes settle {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px)
+      scale(.92);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+@keyframes noteIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -47%)
+      scale(.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+
+}
+
+
+@keyframes flutterAway {
+
+  0% {
+    opacity: 1;
+
+    transform:
+      translate(0,0)
+      rotate(0deg);
+  }
+
+  18% {
+    transform:
+      translate(25px,-18px)
+      rotate(4deg);
+  }
+
+  35% {
+    transform:
+      translate(55px,8px)
+      rotate(-5deg);
+  }
+
+  52% {
+    transform:
+      translate(95px,-30px)
+      rotate(5deg);
+  }
+
+  70% {
+    transform:
+      translate(145px,-4px)
+      rotate(-4deg);
+  }
+
+  84% {
+    transform:
+      translate(205px,-42px)
+      rotate(3deg);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(300px,-95px)
+      rotate(8deg);
+  }
+
+}
+
+.fly {
+  animation:
+    flutterAway 1.85s ease-in forwards !important;
+
+  pointer-events: none;
+}
+
+
+@keyframes releaseIn {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translateY(8px);
+  }
+
+  18%,
+  72% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translateY(-4px);
+  }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 560px) {
+
+  body {
+    padding: 28px 12px;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .station {
+    height: 560px;
+  }
+
+  .composer {
+    padding: 14px;
+
+    height: 94px;
+  }
+
+  button {
+    width: 88px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<main class="page">
+
+  <h1>
+    Thought Origami
+  </h1>
+
+  <div class="subtitle">
+    fold a thought · notice it · let it go
+  </div>
+
+
+  <section class="station" id="station">
+
+    <div class="field" id="field">
+
+      <div class="empty" id="empty">
+        A place for passing thoughts.
+      </div>
+
+    </div>
+
+
+    <div class="composer">
+
+      <textarea
+        id="thought"
+        rows="1"
+        placeholder="Leave a thought here..."
+      ></textarea>
+
+      <button id="fold">
+        Fold it
+      </button>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+const field =
+  document.getElementById('field');
+
+const input =
+  document.getElementById('thought');
+
+const fold =
+  document.getElementById('fold');
+
+const empty =
+  document.getElementById('empty');
+
+
+/* ORIGAMI CRANE */
+
+const craneSVG = `
+
+<svg
+  viewBox="0 0 120 100"
+  aria-hidden="true"
+>
+
+  <!-- LEFT WING -->
+
+  <polygon
+    class="paper"
+    points="58,46 8,20 37,52 18,67 58,58"
+  />
+
+  <polygon
+    class="paper-light"
+    points="58,46 37,52 18,67 58,58"
+  />
+
+
+  <!-- RIGHT WING -->
+
+  <polygon
+    class="paper-mid"
+    points="58,46 111,18 82,51 103,65 58,58"
+  />
+
+  <polygon
+    class="paper-light"
+    points="58,46 82,51 103,65 58,58"
+  />
+
+
+  <!-- BODY -->
+
+  <polygon
+    class="paper"
+    points="58,42 76,53 62,72 50,58"
+  />
+
+  <polygon
+    class="paper-mid"
+    points="58,42 50,58 42,77 62,72"
+  />
+
+
+  <!-- NECK + HEAD -->
+
+  <polygon
+    class="paper-light"
+    points="70,54 83,37 96,26 88,46 78,61"
+  />
+
+  <polygon
+    class="paper"
+    points="88,46 96,26 106,29 96,36"
+  />
+
+
+  <!-- TAIL -->
+
+  <polygon
+    class="paper-light"
+    points="50,58 29,77 55,68"
+  />
+
+
+  <!-- FOLD LINES -->
+
+  <path
+    class="crease"
+    d="
+      M58 46 L58 70
+      M37 52 L58 58
+      M82 51 L58 58
+      M58 46 L29 77
+    "
+  />
+
+
+  <path
+    class="detail"
+    d="M96 36 L106 29"
+  />
+
+</svg>
+
+`;
+
+
+/* RANDOM POSITION */
+
+function randomPosition() {
+
+  const rect =
+    field.getBoundingClientRect();
+
+  const x =
+    70 +
+    Math.random() *
+    Math.max(
+      1,
+      rect.width - 140
+    );
+
+  const y =
+    45 +
+    Math.random() *
+    Math.max(
+      1,
+      rect.height - 155
+    );
+
+  return {
+    x,
+    y
+  };
+
+}
+
+
+/* CREATE CRANE */
+
+function makeCrane(thought) {
+
+  empty.style.opacity = '0';
+
+  const crane =
+    document.createElement('div');
+
+  crane.className = 'crane';
+
+  crane.innerHTML = craneSVG;
+
+
+  const pos =
+    randomPosition();
+
+
+  crane.style.left =
+    `${pos.x - 46}px`;
+
+  crane.style.top =
+    `${pos.y - 41}px`;
+
+
+  crane.addEventListener(
+    'click',
+    function () {
+
+      revealThought(
+        crane,
+        thought
+      );
+
+    }
+  );
+
+
+  field.appendChild(crane);
+
+}
+
+
+/* REVEAL THOUGHT */
+
+function revealThought(
+  crane,
+  thought
+) {
+
+  if (
+    crane.classList.contains('fly')
+  ) {
+    return;
+  }
+
+
+  const note =
+    document.createElement('div');
+
+  note.className = 'note';
+
+
+  note.innerHTML = `
+
+    <div class="note-text"></div>
+
+    <div class="note-meta">
+      notice · acknowledge · release
+    </div>
+
+  `;
+
+
+  note.querySelector(
+    '.note-text'
+  ).textContent = thought;
+
+
+  field.appendChild(note);
+
+
+  /* HOLD THOUGHT */
+
+  setTimeout(function () {
+
+    note.remove();
+
+    crane.classList.add('fly');
+
+
+    /* AFTER FLIGHT */
+
+    setTimeout(function () {
+
+      crane.remove();
+
+
+      const release =
+        document.createElement('div');
+
+
+      release.className =
+        'release';
+
+
+      release.textContent =
+        'Thought, released.';
+
+
+      field.appendChild(
+        release
+      );
+
+
+      setTimeout(function () {
+
+        release.remove();
+
+      }, 2300);
+
+
+    }, 1850);
+
+
+  }, 900);
+
+}
+
+
+/* SUBMIT */
+
+function submitThought() {
+
+  const thought =
+    input.value.trim();
+
+
+  if (!thought) {
+    return;
+  }
+
+
+  makeCrane(thought);
+
+
+  input.value = '';
+
+  input.focus();
+
+}
+
+
+/* BUTTON */
+
+fold.addEventListener(
+  'click',
+  submitThought
+);
+
+
+/* ENTER KEY */
+
+input.addEventListener(
+  'keydown',
+  function (event) {
+
+    if (
+      event.key === 'Enter' &&
+      !event.shiftKey
+    ) {
+
+      event.preventDefault();
+
+      submitThought();
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
