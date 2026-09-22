@@ -49,6 +49,40 @@ h1{
   border-radius:18px;
 }
 
+.done-thoughts-button{
+  position:absolute;
+  top:18px;
+  right:20px;
+  z-index:80;
+  padding:9px 15px;
+  border:1px solid #777;
+  border-radius:6px;
+  background:rgba(251,251,250,.95);
+  color:#333;
+  cursor:pointer;
+  font:12px Arial,Helvetica,sans-serif;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  transition:background .2s ease,border-color .2s ease,transform .2s ease,opacity .2s ease;
+}
+.done-thoughts-button span{
+  display:inline-block;
+  margin-left:5px;
+  transition:transform .2s ease;
+}
+.done-thoughts-button:hover:not(:disabled){
+  background:#fff;
+  border-color:#222;
+  transform:translateY(-1px);
+}
+.done-thoughts-button:hover:not(:disabled) span{
+  transform:translateX(3px);
+}
+.done-thoughts-button:disabled{
+  opacity:.38;
+  cursor:default;
+}
+
+
 .thought-space{
   position:absolute;
   inset:0 0 126px;
@@ -1016,6 +1050,13 @@ textarea:focus{border-color:#222}
 }
 
 @media(max-width:650px){
+  .done-thoughts-button{
+    top:14px;
+    right:14px;
+    padding:8px 11px;
+    font-size:11px;
+  }
+
   .done-button{
     width:calc(100% - 24px);
   }
@@ -1035,7 +1076,7 @@ textarea:focus{border-color:#222}
 .modal-backdrop{
   position:absolute;
   inset:0;
-  z-index:100;
+  z-index:80;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1134,6 +1175,9 @@ textarea:focus{border-color:#222}
 </header>
 
 <main class="station">
+  <button type="button" class="done-thoughts-button" id="doneThoughtsButton" disabled>
+    Done with thoughts <span aria-hidden="true">→</span>
+  </button>
 
   <div class="thought-space" id="thoughtSpace">
 
@@ -1202,12 +1246,6 @@ textarea:focus{border-color:#222}
 
 </main>
 
-<div class="done-wrap">
-  <button type="button" class="done-button" id="doneButton">
-    Done with thoughts <span aria-hidden="true">→</span>
-  </button>
-</div>
-
 </div>
 
 <!-- FINAL RELEASE / CUT SCENE -->
@@ -1232,7 +1270,8 @@ const thoughtInput=document.getElementById("thoughtInput");
 const foldButton=document.getElementById("foldButton");
 const thoughtSpace=document.getElementById("thoughtSpace");
 const emptyMessage=document.getElementById("emptyMessage");
-const doneButton=document.getElementById("doneButton");
+const doneThoughtsButton=document.getElementById("doneThoughtsButton");
+
 const releaseScreen=document.getElementById("releaseScreen");
 const releaseCranes=document.getElementById("releaseCranes");
 const releaseTitle=document.getElementById("releaseTitle");
@@ -1243,7 +1282,7 @@ let thoughtCount=0;
 let releaseAnimationToken=0;
 
 function updateDoneButton(){
-  doneButton.disabled=thoughtCount===0;
+  doneThoughtsButton.disabled=thoughtCount===0;
 }
 
 function beginGame(){
@@ -1253,6 +1292,10 @@ function beginGame(){
 
 beginButton.addEventListener("click",beginGame);
 closeWelcome.addEventListener("click",beginGame);
+
+ doneThoughtsButton.addEventListener("click",showReleaseScreen);
+
+
 
 function makeCraneImage(){
   const img=document.createElement("img");
@@ -1605,6 +1648,7 @@ function makeReleaseCrane(index,total){
 
 function showReleaseScreen(){
   if(thoughtCount===0)return;
+  if(thoughtCount===0)return;
 
   releaseAnimationToken++;
   const token=releaseAnimationToken;
@@ -1648,7 +1692,7 @@ function resetGame(){
   thoughtInput.focus();
 }
 
-doneButton.addEventListener("click",showReleaseScreen);
+
 playAgain.addEventListener("click",resetGame);
 releaseClose.addEventListener("click",closeReleaseScreen);
 
@@ -1676,6 +1720,8 @@ thoughtForm.addEventListener(
     thoughtCount++;
     updateDoneButton();
 
+    thoughtCount++;
+    updateDoneButton();
     foldThought(thought);
   }
 );
