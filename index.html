@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thought Origami</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #f7f7f5;
+  color: #222;
+  font-family: Inter, sans-serif;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 52px 24px 60px;
+}
+
+h1 {
+  margin: 0;
+  text-align: center;
+  font: 400 48px/1.05 Fraunces, Georgia, serif;
+  letter-spacing: -0.035em;
+}
+
+.subtitle {
+  margin: 10px 0 28px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: lowercase;
+  color: #777;
+}
+
+.station {
+  position: relative;
+  height: 540px;
+  border: 1px solid #ccc;
+  border-radius: 18px;
+  background: #fbfbfa;
+  overflow: hidden;
+}
+
+.field {
+  position: absolute;
+  inset: 0 0 100px;
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #aaa;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.composer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100px;
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid #ddd;
+  background: rgba(251,251,250,.97);
+}
+
+textarea {
+  min-width: 0;
+  flex: 1;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 11px;
+  padding: 13px 14px;
+  outline: none;
+  background: white;
+  color: #222;
+  font: 14px/1.4 Inter, sans-serif;
+}
+
+textarea:focus {
+  border-color: #888;
+}
+
+.fold-button {
+  width: 105px;
+  border: 0;
+  border-radius: 11px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+  font: 500 13px Inter, sans-serif;
+}
+
+.fold-button:hover {
+  background: #444;
+}
+
+.crane {
+  position: absolute;
+  width: 150px;
+  height: 100px;
+  color: #777;
+  cursor: pointer;
+  transition: transform .2s ease;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.crane:hover {
+  transform: translateY(-5px) rotate(-1deg);
+}
+
+.crane svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,.07));
+}
+
+.paper {
+  fill: #e8e8e6;
+  stroke: #666;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.paper-light {
+  fill: #fafafa;
+  stroke: #777;
+  stroke-width: .8;
+  stroke-linejoin: round;
+}
+
+.paper-dark {
+  fill: #d8d8d6;
+  stroke: #777;
+  stroke-width: .8;
+  stroke-linejoin: round;
+}
+
+.crease {
+  fill: none;
+  stroke: #999;
+  stroke-width: .7;
+  stroke-linecap: round;
+}
+
+.thought-note {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  top: 50%;
+  width: min(350px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  padding: 24px;
+  border: 1px solid #ccc;
+  background: white;
+  text-align: center;
+  box-shadow: 0 14px 30px rgba(0,0,0,.08);
+  animation: noteIn .3s ease-out;
+}
+
+.thought-text {
+  font: 400 22px/1.4 Fraunces, Georgia, serif;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  margin-top: 14px;
+  color: #999;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.released {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font: italic 400 25px/1 Fraunces, Georgia, serif;
+  animation: released 2.1s ease forwards;
+}
+
+.fly {
+  pointer-events: none;
+  animation: fly 1.7s ease-in forwards;
+}
+
+.welcome-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(247,247,245,.72);
+}
+
+.welcome {
+  position: relative;
+  width: min(510px, 100%);
+  padding: 34px;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 20px 55px rgba(0,0,0,.12);
+}
+
+.welcome h2 {
+  margin: 0 34px 14px 0;
+  font: 400 30px/1.15 Fraunces, Georgia, serif;
+}
+
+.welcome p {
+  margin: 0 0 18px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.welcome .instructions {
+  color: #222;
+  line-height: 1.55;
+}
+
+.welcome .steps {
+  margin-top: 18px;
+  color: #999;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: lowercase;
+}
+
+.begin {
+  margin-top: 24px;
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 20px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+  font: 500 13px Inter, sans-serif;
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  font-size: 23px;
+  line-height: 1;
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -47%) scale(.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes fly {
+  0% {
+    opacity: 1;
+    transform: translate(0,0) rotate(0deg);
+  }
+
+  18% {
+    transform: translate(30px,-18px) rotate(3deg);
+  }
+
+  36% {
+    transform: translate(62px,8px) rotate(-4deg);
+  }
+
+  54% {
+    transform: translate(105px,-24px) rotate(4deg);
+  }
+
+  72% {
+    transform: translate(155px,-4px) rotate(-3deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(270px,-82px) rotate(7deg);
+  }
+}
+
+@keyframes released {
+  0%, 12% {
+    opacity: 0;
+    transform: translate(-50%,-50%) translateY(8px);
+  }
+
+  24%, 72% {
+    opacity: 1;
+    transform: translate(-50%,-50%) translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%,-50%) translateY(-6px);
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 34px 14px 40px;
+  }
+
+  h1 {
+    font-size: 38px;
+  }
+
+  .station {
+    height: 520px;
+  }
+
+  .crane {
+    width: 125px;
+    height: 84px;
+  }
+
+  .composer {
+    height: 105px;
+  }
+
+  .fold-button {
+    width: 88px;
+  }
+
+  .welcome {
+    padding: 28px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <h1>Thought Origami</h1>
+
+  <div class="subtitle">
+    fold a thought · notice it · let it go
+  </div>
+
+  <main class="station">
+
+    <div class="field" id="field">
+      <div class="empty" id="empty">
+        A place for passing thoughts.
+      </div>
+    </div>
+
+    <form class="composer" id="composer">
+
+      <textarea
+        id="thoughtInput"
+        aria-label="Thought"
+        placeholder="Leave a thought here..."
+      ></textarea>
+
+      <button class="fold-button" type="submit">
+        Fold it
+      </button>
+
+    </form>
+
+  </main>
+
+</div>
+
+
+<!-- WELCOME POPUP -->
+
+<div class="welcome-backdrop" id="welcome">
+
+  <section
+    class="welcome"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="welcomeTitle"
+  >
+
+    <button
+      class="close"
+      id="closeWelcome"
+      type="button"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <h2 id="welcomeTitle">
+      A place to let a thought go.
+    </h2>
+
+    <p>
+      We all go through emotions. This game is meant to help you visualize your thoughts as you let them go.
+    </p>
+
+    <p class="instructions">
+      <strong>
+        Write a thought. Click Fold it to turn it into a paper crane, then click the crane to let it go.
+      </strong>
+    </p>
+
+    <div class="steps">
+      write a thought · fold it · let it go
+    </div>
+
+    <button
+      class="begin"
+      id="begin"
+      type="button"
+    >
+      Begin
+    </button>
+
+  </section>
+
+</div>
+
+
+<script>
+
+(() => {
+
+  const field =
+    document.getElementById('field');
+
+  const empty =
+    document.getElementById('empty');
+
+  const composer =
+    document.getElementById('composer');
+
+  const input =
+    document.getElementById('thoughtInput');
+
+  const welcome =
+    document.getElementById('welcome');
+
+  const begin =
+    document.getElementById('begin');
+
+  const closeWelcome =
+    document.getElementById('closeWelcome');
+
+
+  /* THE ORIGAMI CRANE */
+
+  const craneSVG = `
+
+    <svg viewBox="0 0 180 120" aria-hidden="true">
+
+      <!-- main folded body -->
+
+      <path
+        class="paper"
+        d="
+          M18 65
+          L78 42
+          L112 52
+          L151 31
+          L133 61
+          L162 72
+          L118 72
+          L92 102
+          L86 68
+          L45 86
+          Z
+        "
+      />
+
+      <!-- left wing -->
+
+      <path
+        class="paper-light"
+        d="
+          M78 42
+          L112 52
+          L86 68
+          L45 86
+          Z
+        "
+      />
+
+      <!-- right wing / head -->
+
+      <path
+        class="paper-dark"
+        d="
+          M112 52
+          L151 31
+          L133 61
+          L118 72
+          L86 68
+          Z
+        "
+      />
+
+      <!-- lower folded plane -->
+
+      <path
+        class="paper-light"
+        d="
+          M18 65
+          L78 42
+          L86 68
+          L45 86
+          Z
+        "
+      />
+
+      <!-- fold lines -->
+
+      <path
+        class="crease"
+        d="
+          M18 65
+          L86 68
+          L162 72
+        "
+      />
+
+      <path
+        class="crease"
+        d="
+          M78 42
+          L86 68
+          L92 102
+        "
+      />
+
+      <path
+        class="crease"
+        d="
+          M112 52
+          L118 72
+          L133 61
+        "
+      />
+
+      <path
+        class="crease"
+        d="
+          M45 86
+          L86 68
+          L118 72
+        "
+      />
+
+    </svg>
+
+  `;
+
+
+  let craneCount = 0;
+
+
+  function randomPosition() {
+
+    const rect =
+      field.getBoundingClientRect();
+
+    const maxX =
+      Math.max(
+        20,
+        rect.width - 175
+      );
+
+    const maxY =
+      Math.max(
+        20,
+        rect.height - 125
+      );
+
+    return {
+
+      x:
+        25 +
+        Math.random() *
+        Math.max(1, maxX - 25),
+
+      y:
+        25 +
+        Math.random() *
+        Math.max(1, maxY - 25)
+
+    };
+
+  }
+
+
+  function makeCrane(thought) {
+
+    empty.style.opacity = '0';
+
+
+    const crane =
+      document.createElement('button');
+
+    crane.type = 'button';
+
+    crane.className =
+      'crane';
+
+    crane.setAttribute(
+      'aria-label',
+      'Release thought'
+    );
+
+
+    const position =
+      randomPosition();
+
+
+    crane.style.left =
+      `${position.x}px`;
+
+    crane.style.top =
+      `${position.y}px`;
+
+
+    crane.innerHTML =
+      craneSVG;
+
+
+    crane.addEventListener(
+      'click',
+      () => releaseThought(
+        crane,
+        thought
+      )
+    );
+
+
+    field.appendChild(crane);
+
+    craneCount++;
+
+  }
+
+
+  function releaseThought(
+    crane,
+    thought
+  ) {
+
+    if (
+      crane.classList.contains(
+        'fly'
+      )
+    ) {
+      return;
+    }
+
+
+    const note =
+      document.createElement(
+        'div'
+      );
+
+    note.className =
+      'thought-note';
+
+
+    const thoughtText =
+      document.createElement(
+        'div'
+      );
+
+    thoughtText.className =
+      'thought-text';
+
+    thoughtText.textContent =
+      thought;
+
+
+    const meta =
+      document.createElement(
+        'div'
+      );
+
+    meta.className =
+      'meta';
+
+    meta.textContent =
+      'notice · acknowledge · release';
+
+
+    note.append(
+      thoughtText,
+      meta
+    );
+
+
+    field.appendChild(note);
+
+
+    window.setTimeout(
+      () => {
+
+        note.remove();
+
+        crane.classList.add(
+          'fly'
+        );
+
+
+        window.setTimeout(
+          () => {
+
+            crane.remove();
+
+            craneCount--;
+
+
+            if (
+              craneCount === 0
+            ) {
+
+              empty.style.opacity =
+                '1';
+
+            }
+
+
+            const released =
+              document.createElement(
+                'div'
+              );
+
+            released.className =
+              'released';
+
+            released.textContent =
+              'Thought, released.';
+
+
+            field.appendChild(
+              released
+            );
+
+
+            window.setTimeout(
+              () => released.remove(),
+              2100
+            );
+
+          },
+          1700
+        );
+
+      },
+      900
+    );
+
+  }
+
+
+  composer.addEventListener(
+    'submit',
+    event => {
+
+      event.preventDefault();
+
+
+      const thought =
+        input.value.trim();
+
+
+      if (!thought) {
+
+        input.focus();
+
+        return;
+
+      }
+
+
+      makeCrane(
+        thought
+      );
+
+
+      input.value = '';
+
+      input.focus();
+
+    }
+  );
+
+
+  function closeWelcomeModal() {
+
+    welcome.remove();
+
+    input.focus();
+
+  }
+
+
+  begin.addEventListener(
+    'click',
+    closeWelcomeModal
+  );
+
+
+  closeWelcome.addEventListener(
+    'click',
+    closeWelcomeModal
+  );
+
+
+  welcome.addEventListener(
+    'click',
+    event => {
+
+      if (
+        event.target ===
+        welcome
+      ) {
+
+        closeWelcomeModal();
+
+      }
+
+    }
+  );
+
+
+})();
+
+</script>
+
+</body>
+</html>
