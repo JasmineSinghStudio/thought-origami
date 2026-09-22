@@ -6,1606 +6,803 @@
 <title>Thought Origami</title>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:#f7f7f5;
+  color:#171717;
+  font-family:Arial,Helvetica,sans-serif;
+}
+.page{
+  width:min(1160px,calc(100% - 40px));
+  margin:auto;
+  padding:55px 0;
+}
+header{text-align:center;margin-bottom:34px}
+h1{
+  margin:0;
+  font:400 clamp(44px,7vw,72px)/1 Georgia,"Times New Roman",serif;
+  letter-spacing:-.055em;
+}
+.subtitle{
+  margin-top:12px;
+  color:#555;
+  font-size:11px;
+  letter-spacing:.22em;
+}
+.station{
+  position:relative;
+  height:650px;
+  overflow:hidden;
+  background:#fbfbfa;
+  border:1px solid #aaa;
+  border-radius:18px;
+}
+.thought-space{
+  position:absolute;
+  inset:0 0 126px;
+}
+.empty-message{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#8a8a8a;
+  font:17px Georgia,"Times New Roman",serif;
+  transition:opacity .5s ease;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #f7f7f5;
-  color: #171717;
-  font-family: Arial, Helvetica, sans-serif;
+/* composer */
+.composer{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  z-index:20;
+  height:126px;
+  display:flex;
+  gap:16px;
+  padding:20px;
+  border-top:1px solid #aaa;
+  background:#fbfbfa;
 }
-
-.page {
-  width: min(1160px, calc(100% - 40px));
-  margin: auto;
-  padding: 55px 0;
+textarea{
+  flex:1;
+  min-width:0;
+  resize:none;
+  padding:18px;
+  border:1px solid #aaa;
+  border-radius:10px;
+  outline:none;
+  background:#fff;
+  color:#222;
+  font:15px/1.5 Arial,Helvetica,sans-serif;
 }
+textarea:focus{border-color:#222}
 
-/* =========================
-   HEADER
-========================= */
-
-header {
-  text-align: center;
-  margin-bottom: 34px;
+/* paper button */
+.fold-button{
+  position:relative;
+  width:168px;
+  flex-shrink:0;
+  padding:0;
+  border:2px solid #171717;
+  border-radius:5px;
+  background:#fff;
+  color:#111;
+  cursor:pointer;
+  font:23px Georgia,"Times New Roman",serif;
+  box-shadow:0 3px 0 rgba(0,0,0,.08);
+  transition:transform .2s ease,box-shadow .2s ease;
 }
-
-h1 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(44px, 7vw, 72px);
-  font-weight: 400;
-  letter-spacing: -0.055em;
+.fold-button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 12px rgba(0,0,0,.1);
 }
+.fold-button:disabled{cursor:default}
+.fold-label{transition:opacity .15s ease}
 
-.subtitle {
-  margin-top: 12px;
-  color: #555;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-}
-
-/* =========================
-   MAIN STATION
-========================= */
-
-.station {
-  position: relative;
-  height: 650px;
-  overflow: hidden;
-
-  background: #fbfbfa;
-
-  border: 1px solid #aaa;
-  border-radius: 18px;
-}
-
-/* =========================
-   THOUGHT SPACE
-========================= */
-
-.thought-space {
-  position: absolute;
-  inset: 0 0 126px;
-}
-
-.empty-message {
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #8a8a8a;
-
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 17px;
-
-  transition: opacity .5s ease;
-}
-
-/* =========================
-   COMPOSER
-========================= */
-
-.composer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  height: 126px;
-
-  display: flex;
-  gap: 16px;
-
-  padding: 20px;
-
-  border-top: 1px solid #aaa;
-
-  background: #fbfbfa;
-}
-
-textarea {
-  flex: 1;
-
-  min-width: 0;
-
-  resize: none;
-
-  padding: 18px;
-
-  border: 1px solid #aaa;
-  border-radius: 10px;
-
-  outline: none;
-
-  background: white;
-
-  color: #222;
-
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-textarea:focus {
-  border-color: #222;
-}
-
-/* =========================
-   PAPER BUTTON
-========================= */
-
-.fold-button {
-  position: relative;
-
-  width: 168px;
-
-  flex-shrink: 0;
-
-  padding: 0;
-
-  border: 2px solid #171717;
-  border-radius: 5px;
-
-  background: #fff;
-
-  color: #111;
-
-  cursor: pointer;
-
-  overflow: visible;
-
-  perspective: 900px;
-
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 23px;
-
-  box-shadow:
-    0 3px 0 rgba(0,0,0,.08);
-
+/* floating sheet travels from button to exact center */
+.flying-sheet{
+  position:fixed;
+  z-index:90;
+  width:168px;
+  height:76px;
+  background:#fff;
+  border:2px solid #171717;
+  box-shadow:0 12px 25px rgba(0,0,0,.12);
+  pointer-events:none;
+  transform-origin:center center;
   transition:
-    box-shadow .2s ease,
-    transform .2s ease;
+    left .58s cubic-bezier(.2,.78,.2,1),
+    top .58s cubic-bezier(.2,.78,.2,1);
 }
 
-.fold-button:hover {
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 6px 12px rgba(0,0,0,.1);
+/* Realistic crease/fold stage */
+.fold-stage{
+  position:fixed;
+  z-index:91;
+  width:168px;
+  height:76px;
+  pointer-events:none;
+  perspective:900px;
+  transform-style:preserve-3d;
+}
+.sheet{
+  position:absolute;
+  inset:0;
+  background:#fff;
+  border:2px solid #171717;
+  box-shadow:0 12px 25px rgba(0,0,0,.12);
+  transform-style:preserve-3d;
+  overflow:hidden;
+}
+.sheet::before,
+.sheet::after{
+  content:"";
+  position:absolute;
+  background:rgba(80,80,80,.15);
+  transform-origin:center;
+  opacity:0;
+}
+.sheet::before{
+  width:1px;
+  height:100%;
+  left:50%;
+  top:0;
+}
+.sheet::after{
+  height:1px;
+  width:100%;
+  left:0;
+  top:50%;
+}
+.fold-stage.folding .sheet::before{
+  animation:creaseVertical .42s ease forwards;
+}
+.fold-stage.folding .sheet::after{
+  animation:creaseHorizontal .42s ease .18s forwards;
 }
 
-.fold-button:disabled {
-  cursor: default;
+/* Layered paper flaps — they fold inward, then collapse */
+.flap{
+  position:absolute;
+  background:#fff;
+  border:1px solid rgba(23,23,23,.65);
+  transform-style:preserve-3d;
+}
+.flap.left{
+  left:0;top:0;width:50%;height:100%;
+  transform-origin:right center;
+}
+.flap.right{
+  right:0;top:0;width:50%;height:100%;
+  transform-origin:left center;
+}
+.flap.top{
+  left:0;top:0;width:100%;height:50%;
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  transform-origin:center bottom;
+}
+.flap.bottom{
+  left:0;bottom:0;width:100%;height:50%;
+  clip-path:polygon(0 100%,100% 100%,50% 0);
+  transform-origin:center top;
+}
+.fold-stage.folding .flap.left{
+  animation:foldLeft .62s cubic-bezier(.65,.05,.35,1) forwards;
+}
+.fold-stage.folding .flap.right{
+  animation:foldRight .62s cubic-bezier(.65,.05,.35,1) forwards;
+}
+.fold-stage.folding .flap.top{
+  animation:foldTop .58s cubic-bezier(.65,.05,.35,1) .28s forwards;
+}
+.fold-stage.folding .flap.bottom{
+  animation:foldBottom .58s cubic-bezier(.65,.05,.35,1) .28s forwards;
+}
+.fold-stage.compact{
+  animation:compactPaper .55s cubic-bezier(.6,.05,.2,1) forwards;
+}
+@keyframes creaseVertical{
+  0%{opacity:0;transform:scaleY(0)}
+  40%{opacity:1;transform:scaleY(1)}
+  100%{opacity:.45;transform:scaleY(1)}
+}
+@keyframes creaseHorizontal{
+  0%{opacity:0;transform:scaleX(0)}
+  40%{opacity:1;transform:scaleX(1)}
+  100%{opacity:.4;transform:scaleX(1)}
+}
+@keyframes foldLeft{
+  0%{transform:rotateY(0)}
+  100%{transform:rotateY(-155deg)}
+}
+@keyframes foldRight{
+  0%{transform:rotateY(0)}
+  100%{transform:rotateY(155deg)}
+}
+@keyframes foldTop{
+  0%{transform:rotateX(0)}
+  100%{transform:rotateX(150deg)}
+}
+@keyframes foldBottom{
+  0%{transform:rotateX(0)}
+  100%{transform:rotateX(-150deg)}
+}
+@keyframes compactPaper{
+  0%{transform:scale(1) rotate(0)}
+  100%{transform:scale(.28) rotate(-5deg)}
 }
 
-.fold-button.is-folding {
-  cursor: default;
-
-  transform:
-    translateY(-7px)
-    scale(.92);
-
-  box-shadow:
-    0 15px 25px rgba(0,0,0,.13);
+/* crane comes out of the compact paper */
+.emerging-crane{
+  position:fixed;
+  z-index:95;
+  width:150px;
+  pointer-events:none;
+  opacity:0;
 }
-
-/* Normal text */
-
-.fold-label {
-  position: relative;
-  z-index: 2;
-
-  transition:
-    opacity .15s ease;
+.emerging-crane img{
+  display:block;
+  width:100%;
+  height:auto;
+  filter:drop-shadow(0 7px 7px rgba(0,0,0,.12));
 }
-
-.is-folding .fold-label {
-  opacity: 0;
+.emerging-crane.active{
+  animation:craneRadiate 1.45s cubic-bezier(.18,.72,.2,1) forwards;
 }
-
-/* =========================
-   THE ACTUAL PAPER
-========================= */
-
-.paper {
-  position: absolute;
-
-  inset: 0;
-
-  transform-style: preserve-3d;
-
-  pointer-events: none;
-}
-
-/*
-Each panel starts as part of the same
-white sheet.
-*/
-
-.paper-panel {
-  position: absolute;
-
-  background: #fff;
-
-  border: 1px solid #171717;
-
-  transform-style: preserve-3d;
-
-  backface-visibility: hidden;
-}
-
-/* Left half */
-
-.paper-left {
-  left: 0;
-  top: 0;
-
-  width: 50%;
-  height: 100%;
-
-  transform-origin: right center;
-}
-
-/* Right half */
-
-.paper-right {
-  right: 0;
-  top: 0;
-
-  width: 50%;
-  height: 100%;
-
-  transform-origin: left center;
-}
-
-/*
-Horizontal triangular fold.
-*/
-
-.paper-bottom {
-  left: 0;
-  bottom: 0;
-
-  width: 100%;
-  height: 50%;
-
-  clip-path: polygon(
-    0 100%,
-    50% 0,
-    100% 100%
-  );
-
-  border: 1px solid #171717;
-
-  transform-origin: center top;
-}
-
-/*
-Top triangular fold.
-*/
-
-.paper-top {
-  left: 0;
-  top: 0;
-
-  width: 100%;
-  height: 50%;
-
-  clip-path: polygon(
-    0 0,
-    50% 100%,
-    100% 0
-  );
-
-  border: 1px solid #171717;
-
-  transform-origin: center bottom;
-}
-
-/* =========================
-   FOLD SEQUENCE
-========================= */
-
-/*
-0 → 450ms
-The sheet folds vertically.
-*/
-
-.is-folding .paper-left {
-  animation:
-    foldLeft
-    .48s
-    cubic-bezier(.65,0,.35,1)
-    forwards;
-}
-
-.is-folding .paper-right {
-  animation:
-    foldRight
-    .48s
-    cubic-bezier(.65,0,.35,1)
-    forwards;
-}
-
-
-/*
-450 → 900ms
-The paper folds diagonally.
-*/
-
-.is-folding .paper-bottom {
-  animation:
-    foldBottom
-    .48s
-    cubic-bezier(.65,0,.35,1)
-    .48s
-    forwards;
-}
-
-.is-folding .paper-top {
-  animation:
-    foldTop
-    .48s
-    cubic-bezier(.65,0,.35,1)
-    .48s
-    forwards;
-}
-
-
-/*
-900 → 1450ms
-Everything compresses into a small
-origami form.
-*/
-
-.is-folding .paper {
-  animation:
-    paperCollapse
-    .55s
-    cubic-bezier(.6,0,.2,1)
-    .96s
-    forwards;
-}
-
-
-@keyframes foldLeft {
-
-  0% {
-    transform: rotateY(0deg);
+@keyframes craneRadiate{
+  0%{
+    opacity:0;
+    transform:translate(0,8px) scale(.06) rotate(-7deg);
   }
-
-  100% {
-    transform: rotateY(180deg);
+  18%{
+    opacity:1;
+    transform:translate(0,-12px) scale(.18) rotate(-4deg);
   }
-
-}
-
-
-@keyframes foldRight {
-
-  0% {
-    transform: rotateY(0deg);
-  }
-
-  100% {
-    transform: rotateY(-180deg);
-  }
-
-}
-
-
-@keyframes foldBottom {
-
-  0% {
+  42%{
     transform:
-      rotateX(0deg)
-      scaleY(1);
+      translate(calc(var(--travel-x)*.22),calc(var(--travel-y)*.22))
+      scale(.4) rotate(4deg);
   }
-
-  100% {
+  68%{
     transform:
-      rotateX(155deg)
-      scaleY(.85);
+      translate(calc(var(--travel-x)*.65),calc(var(--travel-y)*.65))
+      scale(.75) rotate(-3deg);
   }
-
-}
-
-
-@keyframes foldTop {
-
-  0% {
+  100%{
+    opacity:1;
     transform:
-      rotateX(0deg)
-      scaleY(1);
+      translate(var(--travel-x),var(--travel-y))
+      scale(1) rotate(0);
   }
-
-  100% {
-    transform:
-      rotateX(-155deg)
-      scaleY(.85);
-  }
-
 }
 
-
-@keyframes paperCollapse {
-
-  0% {
-    transform:
-      scale(1)
-      rotate(0deg);
-  }
-
-  55% {
-    transform:
-      scale(.65)
-      rotate(4deg);
-  }
-
-  100% {
-    transform:
-      scale(.16)
-      rotate(-7deg);
-  }
-
+/* settled crane */
+.crane{
+  position:absolute;
+  z-index:25;
+  width:150px;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  animation:craneSettle .4s ease-out forwards;
+}
+.crane img{
+  display:block;
+  width:100%;
+  filter:drop-shadow(0 6px 6px rgba(0,0,0,.1));
+}
+.crane:hover{transform:translateY(-5px)}
+@keyframes craneSettle{
+  from{opacity:0;transform:scale(.8)}
+  to{opacity:1;transform:scale(1)}
 }
 
-
-/* =========================
-   EMERGING CRANE
-========================= */
-
-.emerging-crane {
-  position: absolute;
-
-  z-index: 40;
-
-  width: 150px;
-
-  pointer-events: none;
-
-  opacity: 0;
-
-  transform-origin: center center;
+/* note */
+.thought-note{
+  position:absolute;
+  z-index:60;
+  left:50%;
+  top:42%;
+  width:min(430px,calc(100% - 40px));
+  padding:30px;
+  transform:translate(-50%,-50%);
+  background:#fff;
+  border:1px solid #aaa;
+  box-shadow:0 20px 45px rgba(0,0,0,.1);
+  text-align:center;
+  animation:noteIn .3s ease-out;
+}
+.thought-text{
+  font:24px/1.45 Georgia,"Times New Roman",serif;
+  overflow-wrap:anywhere;
+}
+.note-meta{
+  margin-top:17px;
+  color:#888;
+  font-size:9px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+@keyframes noteIn{
+  from{opacity:0;transform:translate(-50%,-46%) scale(.96)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
 }
 
-.emerging-crane img {
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  filter:
-    drop-shadow(0 7px 7px rgba(0,0,0,.12));
+/* release */
+.crane.releasing{
+  pointer-events:none;
+  animation:releaseFlight 1.7s ease-in forwards;
+}
+@keyframes releaseFlight{
+  0%{opacity:1;transform:translate(0,0) rotate(0)}
+  25%{transform:translate(35px,-20px) rotate(4deg)}
+  50%{transform:translate(90px,8px) rotate(-4deg)}
+  75%{transform:translate(165px,-35px) rotate(3deg)}
+  100%{opacity:0;transform:translate(300px,-110px) rotate(8deg)}
+}
+.released-message{
+  position:absolute;
+  z-index:70;
+  left:50%;top:42%;
+  transform:translate(-50%,-50%);
+  white-space:nowrap;
+  font:italic 25px Georgia,"Times New Roman",serif;
+  animation:releaseIn .25s ease-out,releaseOut 2.5s ease 1s forwards;
+}
+@keyframes releaseIn{from{opacity:0}to{opacity:1}}
+@keyframes releaseOut{
+  from{opacity:1}
+  to{opacity:0;transform:translate(-50%,-58%)}
 }
 
-.emerging-crane.active {
-  animation:
-    craneEmerges
-    1.35s
-    cubic-bezier(.2,.72,.2,1)
-    forwards;
+/* welcome */
+.modal-backdrop{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+  background:rgba(247,247,245,.84);
+}
+.modal-backdrop.hidden{display:none}
+.welcome{
+  position:relative;
+  width:min(510px,100%);
+  padding:36px;
+  background:#fff;
+  border:1px solid #aaa;
+  border-radius:15px;
+  box-shadow:0 20px 55px rgba(0,0,0,.12);
+}
+.welcome h2{
+  margin:0 45px 17px 0;
+  font:400 30px Georgia,"Times New Roman",serif;
+}
+.welcome p{
+  margin:0 0 17px;
+  color:#555;
+  font-size:14px;
+  line-height:1.65;
+}
+.steps{
+  margin-top:20px;
+  color:#888;
+  font-size:10px;
+  letter-spacing:.14em;
+}
+.begin-button{
+  margin-top:25px;
+  padding:12px 23px;
+  border:1px solid #171717;
+  border-radius:7px;
+  background:#171717;
+  color:white;
+  cursor:pointer;
+  font-size:13px;
+}
+.begin-button:hover{background:#333}
+.close-button{
+  position:absolute;
+  top:9px;right:10px;
+  width:40px;height:40px;
+  border:0;
+  background:transparent;
+  color:#777;
+  cursor:pointer;
+  font-size:24px;
 }
 
-
-@keyframes craneEmerges {
-
-  0% {
-    opacity: 0;
-
-    transform:
-      translate(0, 5px)
-      scale(.08)
-      rotate(-12deg);
-  }
-
-  18% {
-    opacity: 1;
-
-    transform:
-      translate(0, -12px)
-      scale(.18)
-      rotate(-8deg);
-  }
-
-  42% {
-    transform:
-      translate(
-        calc(var(--travel-x) * .22),
-        calc(var(--travel-y) * .22)
-      )
-      scale(.4)
-      rotate(4deg);
-  }
-
-  70% {
-    transform:
-      translate(
-        calc(var(--travel-x) * .65),
-        calc(var(--travel-y) * .65)
-      )
-      scale(.72)
-      rotate(-3deg);
-  }
-
-  100% {
-    opacity: 1;
-
-    transform:
-      translate(
-        var(--travel-x),
-        var(--travel-y)
-      )
-      scale(1)
-      rotate(0deg);
-  }
-
-}
-
-
-/* =========================
-   PERMANENT CRANE
-========================= */
-
-.crane {
-  position: absolute;
-
-  z-index: 20;
-
-  width: 150px;
-
-  padding: 0;
-
-  border: 0;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  animation:
-    craneSettle
-    .4s
-    ease-out
-    forwards;
-}
-
-.crane img {
-  display: block;
-
-  width: 100%;
-
-  filter:
-    drop-shadow(0 6px 6px rgba(0,0,0,.1));
-}
-
-.crane:hover {
-  transform:
-    translateY(-5px);
-}
-
-@keyframes craneSettle {
-
-  from {
-    opacity: 0;
-    transform: scale(.8);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-}
-
-
-/* =========================
-   THOUGHT NOTE
-========================= */
-
-.thought-note {
-  position: absolute;
-
-  z-index: 60;
-
-  left: 50%;
-  top: 42%;
-
-  width: min(430px, calc(100% - 40px));
-
-  padding: 30px;
-
-  transform:
-    translate(-50%, -50%);
-
-  background: #fff;
-
-  border: 1px solid #aaa;
-
-  box-shadow:
-    0 20px 45px rgba(0,0,0,.1);
-
-  text-align: center;
-
-  animation:
-    noteIn
-    .3s
-    ease-out;
-}
-
-.thought-text {
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 24px;
-  line-height: 1.45;
-
-  overflow-wrap: anywhere;
-}
-
-.note-meta {
-  margin-top: 17px;
-
-  color: #888;
-
-  font-size: 9px;
-
-  letter-spacing: .16em;
-  text-transform: uppercase;
-}
-
-@keyframes noteIn {
-
-  from {
-    opacity: 0;
-
-    transform:
-      translate(-50%, -46%)
-      scale(.96);
-  }
-
-  to {
-    opacity: 1;
-
-    transform:
-      translate(-50%, -50%)
-      scale(1);
-  }
-
-}
-
-
-/* =========================
-   RELEASE
-========================= */
-
-.crane.releasing {
-  pointer-events: none;
-
-  animation:
-    releaseFlight
-    1.7s
-    ease-in
-    forwards;
-}
-
-@keyframes releaseFlight {
-
-  0% {
-    opacity: 1;
-
-    transform:
-      translate(0,0)
-      rotate(0);
-  }
-
-  25% {
-    transform:
-      translate(35px,-20px)
-      rotate(4deg);
-  }
-
-  50% {
-    transform:
-      translate(90px,8px)
-      rotate(-4deg);
-  }
-
-  75% {
-    transform:
-      translate(165px,-35px)
-      rotate(3deg);
-  }
-
-  100% {
-    opacity: 0;
-
-    transform:
-      translate(300px,-110px)
-      rotate(8deg);
-  }
-
-}
-
-
-/* =========================
-   RELEASED MESSAGE
-========================= */
-
-.released-message {
-  position: absolute;
-
-  z-index: 70;
-
-  left: 50%;
-  top: 42%;
-
-  transform:
-    translate(-50%,-50%);
-
-  white-space: nowrap;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 25px;
-
-  font-style: italic;
-
-  animation:
-    releaseMessageIn .25s ease-out,
-    releaseMessageOut 2.5s ease 1s forwards;
-}
-
-@keyframes releaseMessageIn {
-
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-
-}
-
-@keyframes releaseMessageOut {
-
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-
-    transform:
-      translate(-50%,-58%);
-  }
-
-}
-
-
-/* =========================
-   WELCOME
-========================= */
-
-.modal-backdrop {
-  position: absolute;
-
-  inset: 0;
-
-  z-index: 100;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  padding: 25px;
-
-  background:
-    rgba(247,247,245,.84);
-}
-
-.modal-backdrop.hidden {
-  display: none;
-}
-
-.welcome {
-  position: relative;
-
-  width: min(510px,100%);
-
-  padding: 36px;
-
-  background: white;
-
-  border: 1px solid #aaa;
-
-  border-radius: 15px;
-
-  box-shadow:
-    0 20px 55px rgba(0,0,0,.12);
-}
-
-.welcome h2 {
-  margin: 0 45px 17px 0;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 30px;
-
-  font-weight: 400;
-}
-
-.welcome p {
-  margin: 0 0 17px;
-
-  color: #555;
-
-  font-size: 14px;
-
-  line-height: 1.65;
-}
-
-.steps {
-  margin-top: 20px;
-
-  color: #888;
-
-  font-size: 10px;
-
-  letter-spacing: .14em;
-}
-
-.begin-button {
-  margin-top: 25px;
-
-  padding: 12px 23px;
-
-  border: 1px solid #171717;
-
-  border-radius: 7px;
-
-  background: #171717;
-
-  color: white;
-
-  cursor: pointer;
-
-  font-size: 13px;
-}
-
-.begin-button:hover {
-  background: #333;
-}
-
-.close-button {
-  position: absolute;
-
-  top: 9px;
-  right: 10px;
-
-  width: 40px;
-  height: 40px;
-
-  border: 0;
-
-  background: transparent;
-
-  color: #777;
-
-  cursor: pointer;
-
-  font-size: 24px;
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 650px) {
-
-  .page {
-    width: calc(100% - 24px);
-
-    padding-top: 35px;
-  }
-
-  .station {
-    height: 600px;
-  }
-
-  .composer {
-    height: 145px;
-  }
-
-  .thought-space {
-    inset-bottom: 145px;
-  }
-
-  .fold-button {
-    width: 110px;
-  }
-
-  .fold-button {
-    font-size: 18px;
-  }
-
-  .welcome {
-    padding: 28px;
-  }
-
+@media(max-width:650px){
+  .page{width:calc(100% - 24px);padding-top:35px}
+  .station{height:600px}
+  .composer{height:145px}
+  .thought-space{inset:0 0 145px}
+  .fold-button{width:110px;font-size:18px}
+  .welcome{padding:28px}
 }
 </style>
 </head>
-
 
 <body>
 
 <div class="page">
 
-  <header>
+<header>
+  <h1>Thought Origami</h1>
+  <div class="subtitle">fold a thought · notice it · let it go</div>
+</header>
 
-    <h1>Thought Origami</h1>
+<main class="station">
 
-    <div class="subtitle">
-      fold a thought · notice it · let it go
+  <div class="thought-space" id="thoughtSpace">
+    <div class="empty-message" id="emptyMessage">
+      A place for passing thoughts.
     </div>
+  </div>
 
-  </header>
+  <form class="composer" id="thoughtForm">
 
+    <textarea
+      id="thoughtInput"
+      placeholder="Leave a thought here..."
+      aria-label="Write a thought"
+    ></textarea>
 
-  <main class="station">
-
-
-    <!-- =========================
-         THOUGHT SPACE
-    ========================== -->
-
-    <div
-      class="thought-space"
-      id="thoughtSpace"
+    <button
+      type="submit"
+      class="fold-button"
+      id="foldButton"
     >
+      <span class="fold-label">Fold it</span>
+    </button>
 
-      <div
-        class="empty-message"
-        id="emptyMessage"
-      >
-        A place for passing thoughts.
-      </div>
+  </form>
 
-    </div>
+  <div class="modal-backdrop" id="welcomeModal">
 
-
-    <!-- =========================
-         COMPOSER
-    ========================== -->
-
-    <form
-      class="composer"
-      id="thoughtForm"
-    >
-
-      <textarea
-        id="thoughtInput"
-        placeholder="Leave a thought here..."
-        aria-label="Write a thought"
-      ></textarea>
-
-
-      <!--
-        THIS IS THE PAPER.
-
-        It starts as a white outlined button.
-
-        When clicked, the actual paper folds.
-      -->
+    <section class="welcome">
 
       <button
-        type="submit"
-        class="fold-button"
-        id="foldButton"
-      >
+        type="button"
+        class="close-button"
+        id="closeWelcome"
+        aria-label="Close"
+      >×</button>
 
-        <span class="fold-label">
-          Fold it
-        </span>
+      <h2>A place to let a thought go.</h2>
 
+      <p>
+        We all go through emotions. This game is meant to help you
+        visualize your thoughts as you let them go.
+      </p>
 
-        <div class="paper">
+      <p>
+        <strong>
+          Write a thought. Click Fold it to turn it into a paper
+          crane, then click the crane to let it go.
+        </strong>
+      </p>
 
-          <div class="paper-panel paper-left"></div>
+      <div class="steps">
+        write a thought · fold it · let it go
+      </div>
 
-          <div class="paper-panel paper-right"></div>
+      <button
+        type="button"
+        class="begin-button"
+        id="beginButton"
+      >Begin</button>
 
-          <div class="paper-panel paper-top"></div>
+    </section>
+  </div>
 
-          <div class="paper-panel paper-bottom"></div>
-
-        </div>
-
-      </button>
-
-    </form>
-
-
-    <!-- =========================
-         WELCOME
-    ========================== -->
-
-    <div
-      class="modal-backdrop"
-      id="welcomeModal"
-    >
-
-      <section class="welcome">
-
-        <button
-          type="button"
-          class="close-button"
-          id="closeWelcome"
-          aria-label="Close"
-        >
-          ×
-        </button>
-
-
-        <h2>
-          A place to let a thought go.
-        </h2>
-
-
-        <p>
-          We all go through emotions. This game is meant to help you
-          visualize your thoughts as you let them go.
-        </p>
-
-
-        <p>
-          <strong>
-            Write a thought. Click Fold it to turn it into a paper
-            crane, then click the crane to let it go.
-          </strong>
-        </p>
-
-
-        <div class="steps">
-          write a thought · fold it · let it go
-        </div>
-
-
-        <button
-          type="button"
-          class="begin-button"
-          id="beginButton"
-        >
-          Begin
-        </button>
-
-      </section>
-
-    </div>
-
-  </main>
-
+</main>
 </div>
 
-
 <script>
+const welcomeModal = document.getElementById("welcomeModal");
+const beginButton = document.getElementById("beginButton");
+const closeWelcome = document.getElementById("closeWelcome");
+const thoughtForm = document.getElementById("thoughtForm");
+const thoughtInput = document.getElementById("thoughtInput");
+const foldButton = document.getElementById("foldButton");
+const thoughtSpace = document.getElementById("thoughtSpace");
+const emptyMessage = document.getElementById("emptyMessage");
 
-/* ============================================================
-   THOUGHT ORIGAMI
-============================================================ */
-
-
-const welcomeModal =
-  document.getElementById("welcomeModal");
-
-const beginButton =
-  document.getElementById("beginButton");
-
-const closeWelcome =
-  document.getElementById("closeWelcome");
-
-const thoughtForm =
-  document.getElementById("thoughtForm");
-
-const thoughtInput =
-  document.getElementById("thoughtInput");
-
-const foldButton =
-  document.getElementById("foldButton");
-
-const thoughtSpace =
-  document.getElementById("thoughtSpace");
-
-const emptyMessage =
-  document.getElementById("emptyMessage");
-
-
-/* ============================================================
-   WELCOME
-============================================================ */
-
-function beginGame() {
-
+function beginGame(){
   welcomeModal.classList.add("hidden");
-
-  setTimeout(() => {
-    thoughtInput.focus();
-  }, 150);
-
+  setTimeout(()=>thoughtInput.focus(),120);
 }
 
+beginButton.addEventListener("click",beginGame);
+closeWelcome.addEventListener("click",beginGame);
 
-beginButton.addEventListener(
-  "click",
-  beginGame
-);
-
-
-closeWelcome.addEventListener(
-  "click",
-  beginGame
-);
-
-
-/* ============================================================
-   CRANE IMAGE
-============================================================ */
-
-function makeCraneImage() {
-
-  const image =
-    document.createElement("img");
-
-  /*
-    IMPORTANT:
-    Keep the PNG beside index.html.
-  */
-
-  image.src =
-    "thought_origami_white_crane.png";
-
-  image.alt = "";
-
-  image.draggable = false;
-
-  return image;
-
+function makeCraneImage(){
+  const img=document.createElement("img");
+  img.src="thought_origami_white_crane.png";
+  img.alt="";
+  img.draggable=false;
+  return img;
 }
 
+function foldThought(thought){
 
-/* ============================================================
-   FOLD
-============================================================ */
+  foldButton.disabled=true;
+  emptyMessage.style.opacity="0";
 
-function foldThought(thought) {
-
-  foldButton.disabled = true;
-
-  foldButton.classList.add(
-    "is-folding"
-  );
-
-  emptyMessage.style.opacity = "0";
-
-
-  const buttonRect =
-    foldButton.getBoundingClientRect();
-
-  const fieldRect =
-    thoughtSpace.getBoundingClientRect();
-
+  const buttonRect=foldButton.getBoundingClientRect();
 
   /*
-    Starting position = center of paper button.
-  */
+   * Move the actual white Fold it paper
+   * to the center of the thought field.
+   */
+  const fieldRect=thoughtSpace.getBoundingClientRect();
 
-  const startX =
-    buttonRect.left
-    - fieldRect.left
-    + buttonRect.width / 2
-    - 75;
+  const paperWidth=168;
+  const paperHeight=76;
 
+  const centerX=
+    fieldRect.left+
+    fieldRect.width/2-
+    paperWidth/2;
 
-  const startY =
-    buttonRect.top
-    - fieldRect.top
-    - 5;
+  const centerY=
+    fieldRect.top+
+    fieldRect.height/2-
+    paperHeight/2;
 
+  foldButton.style.position="fixed";
+  foldButton.style.zIndex="90";
+  foldButton.style.left=buttonRect.left+"px";
+  foldButton.style.top=buttonRect.top+"px";
+  foldButton.style.width=buttonRect.width+"px";
+  foldButton.style.height=buttonRect.height+"px";
+  foldButton.style.margin="0";
+  foldButton.style.pointerEvents="none";
+  foldButton.classList.add("moving");
 
-  /*
-    Random destination.
-  */
-
-  const craneWidth = 150;
-
-  const craneHeight = 115;
-
-
-  const maxX =
-    Math.max(
-      25,
-      thoughtSpace.clientWidth
-      - craneWidth
-      - 25
-    );
-
-
-  const maxY =
-    Math.max(
-      25,
-      thoughtSpace.clientHeight
-      - craneHeight
-      - 25
-    );
-
-
-  const destinationX =
-    25 + Math.random() *
-    Math.max(1, maxX - 25);
-
-
-  const destinationY =
-    25 + Math.random() *
-    Math.max(1, maxY - 25);
-
-
-  const travelX =
-    destinationX - startX;
-
-  const travelY =
-    destinationY - startY;
-
+  requestAnimationFrame(()=>{
+    foldButton.style.transition=
+      "left .58s cubic-bezier(.2,.78,.2,1),top .58s cubic-bezier(.2,.78,.2,1)";
+    foldButton.style.left=centerX+"px";
+    foldButton.style.top=centerY+"px";
+  });
 
   /*
-    Wait until the physical paper has
-    mostly folded before the crane appears.
-  */
+   * At center, hide the button and create
+   * a real paper folding stage.
+   */
+  setTimeout(()=>{
 
-  setTimeout(() => {
+    foldButton.style.visibility="hidden";
 
+    const stage=document.createElement("div");
+    stage.className="fold-stage";
+    stage.style.left=centerX+"px";
+    stage.style.top=centerY+"px";
 
-    const crane =
-      document.createElement("div");
+    const sheet=document.createElement("div");
+    sheet.className="sheet";
 
+    const left=document.createElement("div");
+    left.className="flap left";
 
-    crane.className =
-      "emerging-crane";
+    const right=document.createElement("div");
+    right.className="flap right";
 
+    const top=document.createElement("div");
+    top.className="flap top";
 
-    crane.style.left =
-      startX + "px";
+    const bottom=document.createElement("div");
+    bottom.className="flap bottom";
 
+    sheet.append(left,right,top,bottom);
+    stage.appendChild(sheet);
+    document.body.appendChild(stage);
 
-    crane.style.top =
-      startY + "px";
-
-
-    crane.style.setProperty(
-      "--travel-x",
-      travelX + "px"
-    );
-
-
-    crane.style.setProperty(
-      "--travel-y",
-      travelY + "px"
-    );
-
-
-    crane.appendChild(
-      makeCraneImage()
-    );
-
-
-    thoughtSpace.appendChild(
-      crane
-    );
-
-
-    requestAnimationFrame(() => {
-
-      crane.classList.add(
-        "active"
-      );
-
+    requestAnimationFrame(()=>{
+      stage.classList.add("folding");
     });
 
+    /*
+     * Let the human-like folds finish,
+     * then compress into the final folded form.
+     */
+    setTimeout(()=>{
+      stage.classList.add("compact");
+    },900);
 
     /*
-      When crane reaches destination,
-      turn it into the clickable crane.
-    */
+     * Crane emerges only after the paper
+     * has actually folded.
+     */
+    setTimeout(()=>{
 
-    setTimeout(() => {
+      stage.remove();
 
-      crane.remove();
+      const craneWidth=150;
+      const craneHeight=110;
 
-      foldButton.classList.remove(
-        "is-folding"
+      const maxX=Math.max(
+        25,
+        thoughtSpace.clientWidth-craneWidth-25
       );
 
-      foldButton.disabled = false;
-
-
-      createPermanentCrane(
-        thought,
-        destinationX,
-        destinationY
+      const maxY=Math.max(
+        25,
+        thoughtSpace.clientHeight-craneHeight-25
       );
 
+      const destinationX=
+        25+Math.random()*Math.max(1,maxX-25);
 
-    }, 1350);
+      const destinationY=
+        25+Math.random()*Math.max(1,maxY-25);
 
+      const startX=
+        fieldRect.left+
+        fieldRect.width/2-
+        craneWidth/2;
 
-  }, 1050);
+      const startY=
+        fieldRect.top+
+        fieldRect.height/2-
+        craneHeight/2;
 
+      const finalX=
+        fieldRect.left+destinationX;
+
+      const finalY=
+        fieldRect.top+destinationY;
+
+      const travelX=finalX-startX;
+      const travelY=finalY-startY;
+
+      const emerging=document.createElement("div");
+      emerging.className="emerging-crane";
+      emerging.style.left=startX+"px";
+      emerging.style.top=startY+"px";
+      emerging.style.setProperty("--travel-x",travelX+"px");
+      emerging.style.setProperty("--travel-y",travelY+"px");
+      emerging.appendChild(makeCraneImage());
+
+      document.body.appendChild(emerging);
+
+      requestAnimationFrame(()=>{
+        emerging.classList.add("active");
+      });
+
+      setTimeout(()=>{
+
+        emerging.remove();
+
+        foldButton.style.position="";
+        foldButton.style.zIndex="";
+        foldButton.style.left="";
+        foldButton.style.top="";
+        foldButton.style.width="";
+        foldButton.style.height="";
+        foldButton.style.margin="";
+        foldButton.style.pointerEvents="";
+        foldButton.style.visibility="";
+
+        foldButton.disabled=false;
+
+        createPermanentCrane(
+          thought,
+          destinationX,
+          destinationY
+        );
+
+      },1450);
+
+    },1550);
+
+  },650);
 }
 
+function createPermanentCrane(thought,x,y){
 
-/* ============================================================
-   PERMANENT CRANE
-============================================================ */
+  const crane=document.createElement("button");
 
-function createPermanentCrane(
-  thought,
-  x,
-  y
-) {
+  crane.type="button";
+  crane.className="crane";
+  crane.style.left=x+"px";
+  crane.style.top=y+"px";
+  crane.setAttribute("aria-label","Release thought");
+  crane.appendChild(makeCraneImage());
 
-  const crane =
-    document.createElement("button");
-
-
-  crane.type =
-    "button";
-
-
-  crane.className =
-    "crane";
-
-
-  crane.style.left =
-    x + "px";
-
-
-  crane.style.top =
-    y + "px";
-
-
-  crane.setAttribute(
-    "aria-label",
-    "Release thought"
-  );
-
-
-  crane.appendChild(
-    makeCraneImage()
-  );
-
-
-  thoughtSpace.appendChild(
-    crane
-  );
-
+  thoughtSpace.appendChild(crane);
 
   crane.addEventListener(
     "click",
-    () => {
-
-      releaseThought(
-        crane,
-        thought
-      );
-
-    },
-    { once: true }
+    ()=>releaseThought(crane,thought),
+    {once:true}
   );
-
 }
 
+function releaseThought(crane,thought){
 
-/* ============================================================
-   RELEASE
-============================================================ */
+  const note=document.createElement("div");
+  note.className="thought-note";
 
-function releaseThought(
-  crane,
-  thought
-) {
+  const text=document.createElement("div");
+  text.className="thought-text";
+  text.textContent=thought;
 
-  const note =
-    document.createElement("div");
+  const meta=document.createElement("div");
+  meta.className="note-meta";
+  meta.textContent="notice · acknowledge · release";
 
-
-  note.className =
-    "thought-note";
-
-
-  const text =
-    document.createElement("div");
-
-
-  text.className =
-    "thought-text";
-
-
-  text.textContent =
-    thought;
-
-
-  const meta =
-    document.createElement("div");
-
-
-  meta.className =
-    "note-meta";
-
-
-  meta.textContent =
-    "notice · acknowledge · release";
-
-
-  note.appendChild(text);
-
-  note.appendChild(meta);
-
+  note.append(text,meta);
   thoughtSpace.appendChild(note);
 
-
-  /*
-    Let the thought be seen.
-  */
-
-  setTimeout(() => {
+  setTimeout(()=>{
 
     note.remove();
+    crane.classList.add("releasing");
 
-    crane.classList.add(
-      "releasing"
-    );
-
-
-    setTimeout(() => {
-
+    setTimeout(()=>{
       crane.remove();
-
       showReleasedMessage();
+    },1700);
 
-    }, 1700);
-
-  }, 900);
-
+  },900);
 }
 
+function showReleasedMessage(){
 
-/* ============================================================
-   RELEASE MESSAGE
-============================================================ */
+  const message=document.createElement("div");
+  message.className="released-message";
+  message.textContent="Thought, released.";
 
-function showReleasedMessage() {
+  thoughtSpace.appendChild(message);
 
-  const message =
-    document.createElement("div");
-
-
-  message.className =
-    "released-message";
-
-
-  message.textContent =
-    "Thought, released.";
-
-
-  thoughtSpace.appendChild(
-    message
-  );
-
-
-  setTimeout(() => {
-
-    message.remove();
-
-  }, 3500);
-
+  setTimeout(()=>message.remove(),3500);
 }
 
+thoughtForm.addEventListener("submit",event=>{
 
-/* ============================================================
-   FORM
-============================================================ */
+  event.preventDefault();
 
-thoughtForm.addEventListener(
-  "submit",
-  function(event) {
+  if(foldButton.disabled)return;
 
+  const thought=thoughtInput.value.trim();
+
+  if(!thought){
+    thoughtInput.focus();
+    return;
+  }
+
+  thoughtInput.value="";
+  foldThought(thought);
+});
+
+thoughtInput.addEventListener("keydown",event=>{
+
+  if(event.key==="Enter"&&!event.shiftKey){
     event.preventDefault();
-
-
-    if (foldButton.disabled) {
-      return;
-    }
-
-
-    const thought =
-      thoughtInput.value.trim();
-
-
-    if (!thought) {
-
-      thoughtInput.focus();
-
-      return;
-
-    }
-
-
-    thoughtInput.value = "";
-
-
-    foldThought(thought);
-
+    thoughtForm.requestSubmit();
   }
-);
 
+});
 
-/* ============================================================
-   ENTER
-============================================================ */
+document.addEventListener("keydown",event=>{
 
-thoughtInput.addEventListener(
-  "keydown",
-  function(event) {
-
-    /*
-      Enter = Fold
-      Shift + Enter = newline
-    */
-
-    if (
-      event.key === "Enter"
-      && !event.shiftKey
-    ) {
-
-      event.preventDefault();
-
-      thoughtForm.requestSubmit();
-
-    }
-
+  if(
+    event.key==="Escape" &&
+    !welcomeModal.classList.contains("hidden")
+  ){
+    beginGame();
   }
-);
 
-
-/* ============================================================
-   ESC
-============================================================ */
-
-document.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (
-      event.key === "Escape"
-      &&
-      !welcomeModal.classList.contains("hidden")
-    ) {
-
-      beginGame();
-
-    }
-
-  }
-);
-
+});
 </script>
 
 </body>
