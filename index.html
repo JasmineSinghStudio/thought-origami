@@ -7,6 +7,7 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   min-height:100vh;
@@ -14,23 +15,31 @@ body{
   color:#171717;
   font-family:Arial,Helvetica,sans-serif;
 }
+
 .page{
   width:min(1160px,calc(100% - 40px));
   margin:auto;
   padding:55px 0;
 }
-header{text-align:center;margin-bottom:34px}
+
+header{
+  text-align:center;
+  margin-bottom:34px;
+}
+
 h1{
   margin:0;
   font:400 clamp(44px,7vw,72px)/1 Georgia,"Times New Roman",serif;
   letter-spacing:-.055em;
 }
+
 .subtitle{
   margin-top:12px;
   color:#555;
   font-size:11px;
   letter-spacing:.22em;
 }
+
 .station{
   position:relative;
   height:650px;
@@ -39,10 +48,12 @@ h1{
   border:1px solid #aaa;
   border-radius:18px;
 }
+
 .thought-space{
   position:absolute;
   inset:0 0 126px;
 }
+
 .empty-message{
   position:absolute;
   inset:0;
@@ -54,10 +65,13 @@ h1{
   transition:opacity .5s ease;
 }
 
-/* composer */
+/* INPUT */
+
 .composer{
   position:absolute;
-  left:0;right:0;bottom:0;
+  left:0;
+  right:0;
+  bottom:0;
   z-index:20;
   height:126px;
   display:flex;
@@ -66,6 +80,7 @@ h1{
   border-top:1px solid #aaa;
   background:#fbfbfa;
 }
+
 textarea{
   flex:1;
   min-width:0;
@@ -78,9 +93,11 @@ textarea{
   color:#222;
   font:15px/1.5 Arial,Helvetica,sans-serif;
 }
+
 textarea:focus{border-color:#222}
 
-/* paper button */
+/* PAPER BUTTON */
+
 .fold-button{
   position:relative;
   width:168px;
@@ -93,149 +110,566 @@ textarea:focus{border-color:#222}
   cursor:pointer;
   font:23px Georgia,"Times New Roman",serif;
   box-shadow:0 3px 0 rgba(0,0,0,.08);
-  transition:transform .2s ease,box-shadow .2s ease;
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    opacity .2s ease;
 }
+
 .fold-button:hover{
   transform:translateY(-2px);
   box-shadow:0 6px 12px rgba(0,0,0,.1);
 }
-.fold-button:disabled{cursor:default}
-.fold-label{transition:opacity .15s ease}
 
-/* floating sheet travels from button to exact center */
-.flying-sheet{
-  position:fixed;
-  z-index:90;
-  width:168px;
-  height:76px;
-  background:#fff;
-  border:2px solid #171717;
-  box-shadow:0 12px 25px rgba(0,0,0,.12);
-  pointer-events:none;
-  transform-origin:center center;
-  transition:
-    left .58s cubic-bezier(.2,.78,.2,1),
-    top .58s cubic-bezier(.2,.78,.2,1);
+.fold-button:disabled{cursor:default}
+
+.fold-label{
+  transition:opacity .15s ease;
 }
 
-/* Realistic crease/fold stage */
+.fold-button.hidden-paper{
+  visibility:hidden;
+}
+
+/* =========================================================
+   SOFT PAPER FOLDING STAGE
+
+   This intentionally avoids rigid rotateX / rotateY hinges.
+   The sheet uses several overlapping organic pieces that
+   ease, skew, rotate, stretch and compress at slightly
+   different times.
+========================================================= */
+
 .fold-stage{
   position:fixed;
   z-index:91;
   width:168px;
   height:76px;
   pointer-events:none;
-  perspective:900px;
-  transform-style:preserve-3d;
+  transform-origin:center;
 }
-.sheet{
+
+.soft-paper{
   position:absolute;
   inset:0;
+  overflow:visible;
+  transform-origin:center;
+}
+
+/* Main sheet */
+
+.paper-body{
+  position:absolute;
+  inset:0;
+
   background:#fff;
   border:2px solid #171717;
-  box-shadow:0 12px 25px rgba(0,0,0,.12);
-  transform-style:preserve-3d;
-  overflow:hidden;
+
+  box-shadow:0 13px 25px rgba(0,0,0,.11);
+
+  transform-origin:center;
 }
-.sheet::before,
-.sheet::after{
+
+/*
+  Slight paper texture / crease network.
+  These are subtle, so the paper still reads as white.
+*/
+
+.paper-body::before{
   content:"";
   position:absolute;
-  background:rgba(80,80,80,.15);
-  transform-origin:center;
+  inset:7px;
+
+  background:
+    linear-gradient(
+      35deg,
+      transparent 47%,
+      rgba(60,60,60,.10) 48%,
+      transparent 49%
+    ),
+    linear-gradient(
+      -32deg,
+      transparent 52%,
+      rgba(60,60,60,.07) 53%,
+      transparent 54%
+    );
+
   opacity:0;
 }
-.sheet::before{
-  width:1px;
-  height:100%;
-  left:50%;
-  top:0;
-}
-.sheet::after{
-  height:1px;
-  width:100%;
-  left:0;
-  top:50%;
-}
-.fold-stage.folding .sheet::before{
-  animation:creaseVertical .42s ease forwards;
-}
-.fold-stage.folding .sheet::after{
-  animation:creaseHorizontal .42s ease .18s forwards;
-}
 
-/* Layered paper flaps — they fold inward, then collapse */
-.flap{
+.paper-body::after{
+  content:"";
   position:absolute;
-  background:#fff;
-  border:1px solid rgba(23,23,23,.65);
-  transform-style:preserve-3d;
-}
-.flap.left{
-  left:0;top:0;width:50%;height:100%;
-  transform-origin:right center;
-}
-.flap.right{
-  right:0;top:0;width:50%;height:100%;
-  transform-origin:left center;
-}
-.flap.top{
-  left:0;top:0;width:100%;height:50%;
-  clip-path:polygon(0 0,100% 0,50% 100%);
-  transform-origin:center bottom;
-}
-.flap.bottom{
-  left:0;bottom:0;width:100%;height:50%;
-  clip-path:polygon(0 100%,100% 100%,50% 0);
-  transform-origin:center top;
-}
-.fold-stage.folding .flap.left{
-  animation:foldLeft .62s cubic-bezier(.65,.05,.35,1) forwards;
-}
-.fold-stage.folding .flap.right{
-  animation:foldRight .62s cubic-bezier(.65,.05,.35,1) forwards;
-}
-.fold-stage.folding .flap.top{
-  animation:foldTop .58s cubic-bezier(.65,.05,.35,1) .28s forwards;
-}
-.fold-stage.folding .flap.bottom{
-  animation:foldBottom .58s cubic-bezier(.65,.05,.35,1) .28s forwards;
-}
-.fold-stage.compact{
-  animation:compactPaper .55s cubic-bezier(.6,.05,.2,1) forwards;
-}
-@keyframes creaseVertical{
-  0%{opacity:0;transform:scaleY(0)}
-  40%{opacity:1;transform:scaleY(1)}
-  100%{opacity:.45;transform:scaleY(1)}
-}
-@keyframes creaseHorizontal{
-  0%{opacity:0;transform:scaleX(0)}
-  40%{opacity:1;transform:scaleX(1)}
-  100%{opacity:.4;transform:scaleX(1)}
-}
-@keyframes foldLeft{
-  0%{transform:rotateY(0)}
-  100%{transform:rotateY(-155deg)}
-}
-@keyframes foldRight{
-  0%{transform:rotateY(0)}
-  100%{transform:rotateY(155deg)}
-}
-@keyframes foldTop{
-  0%{transform:rotateX(0)}
-  100%{transform:rotateX(150deg)}
-}
-@keyframes foldBottom{
-  0%{transform:rotateX(0)}
-  100%{transform:rotateX(-150deg)}
-}
-@keyframes compactPaper{
-  0%{transform:scale(1) rotate(0)}
-  100%{transform:scale(.28) rotate(-5deg)}
+
+  left:50%;
+  top:8%;
+  width:1px;
+  height:84%;
+
+  background:#999;
+
+  opacity:0;
+
+  transform-origin:center;
 }
 
-/* crane comes out of the compact paper */
+/* Soft edge pieces */
+
+.soft-edge{
+  position:absolute;
+
+  background:#fff;
+
+  border:1px solid rgba(23,23,23,.55);
+
+  box-shadow:0 2px 4px rgba(0,0,0,.03);
+
+  opacity:0;
+}
+
+/* upper corner */
+
+.edge-a{
+  left:-1px;
+  top:-1px;
+
+  width:54%;
+  height:55%;
+
+  clip-path:polygon(
+    0 0,
+    100% 0,
+    50% 100%
+  );
+
+  transform-origin:50% 100%;
+}
+
+/* lower corner */
+
+.edge-b{
+  right:-1px;
+  bottom:-1px;
+
+  width:55%;
+  height:55%;
+
+  clip-path:polygon(
+    0 0,
+    100% 100%,
+    0 100%
+  );
+
+  transform-origin:0 0;
+}
+
+/* left curling section */
+
+.edge-c{
+  left:-1px;
+  top:18%;
+
+  width:52%;
+  height:64%;
+
+  clip-path:polygon(
+    0 0,
+    100% 50%,
+    0 100%
+  );
+
+  transform-origin:100% 50%;
+}
+
+/* right curling section */
+
+.edge-d{
+  right:-1px;
+  top:18%;
+
+  width:52%;
+  height:64%;
+
+  clip-path:polygon(
+    100% 0,
+    0 50%,
+    100% 100%
+  );
+
+  transform-origin:0 50%;
+}
+
+/* ---------------------------------------------------------
+   STAGE 1 — paper settles and becomes slightly soft
+--------------------------------------------------------- */
+
+.fold-stage.begin-soft .paper-body{
+  animation:
+    paperBreathe
+    .55s
+    cubic-bezier(.25,.7,.25,1)
+    forwards;
+}
+
+@keyframes paperBreathe{
+  0%{
+    transform:
+      scale(1)
+      rotate(0deg)
+      skew(0deg,0deg);
+  }
+
+  45%{
+    transform:
+      scale(1.015,.985)
+      rotate(-1.2deg)
+      skew(-1deg,.5deg);
+  }
+
+  100%{
+    transform:
+      scale(.995,1.005)
+      rotate(.7deg)
+      skew(.7deg,-.3deg);
+  }
+}
+
+/* ---------------------------------------------------------
+   STAGE 2 — soft creases begin
+--------------------------------------------------------- */
+
+.fold-stage.creasing .paper-body{
+  animation:
+    paperCrease
+    1.05s
+    cubic-bezier(.25,.65,.25,1)
+    forwards;
+}
+
+.fold-stage.creasing .paper-body::before{
+  animation:
+    creaseTexture
+    1.05s
+    ease
+    forwards;
+}
+
+.fold-stage.creasing .paper-body::after{
+  animation:
+    centerCrease
+    .75s
+    ease
+    .15s
+    forwards;
+}
+
+@keyframes paperCrease{
+
+  0%{
+    transform:
+      perspective(700px)
+      scale(1)
+      rotate(0deg)
+      skew(0deg,0deg);
+  }
+
+  18%{
+    transform:
+      perspective(700px)
+      scale(1.015,.97)
+      rotate(-1deg)
+      skew(-2deg,1deg);
+  }
+
+  38%{
+    transform:
+      perspective(700px)
+      scale(.96,.99)
+      rotate(1.5deg)
+      skew(2deg,-1deg);
+  }
+
+  58%{
+    transform:
+      perspective(700px)
+      scale(.9,.94)
+      rotate(-2deg)
+      skew(-3deg,2deg);
+  }
+
+  78%{
+    transform:
+      perspective(700px)
+      scale(.78,.87)
+      rotate(2deg)
+      skew(4deg,-2deg);
+  }
+
+  100%{
+    transform:
+      perspective(700px)
+      scale(.68,.78)
+      rotate(-1deg)
+      skew(-2deg,1deg);
+  }
+}
+
+@keyframes creaseTexture{
+  0%{opacity:0}
+  30%{opacity:.25}
+  60%{opacity:.55}
+  100%{opacity:.75}
+}
+
+@keyframes centerCrease{
+  0%{
+    opacity:0;
+    transform:scaleY(0);
+  }
+
+  35%{
+    opacity:.45;
+    transform:scaleY(.5);
+  }
+
+  100%{
+    opacity:.28;
+    transform:scaleY(1);
+  }
+}
+
+/* ---------------------------------------------------------
+   STAGE 3 — edges curl inward asynchronously
+--------------------------------------------------------- */
+
+.fold-stage.curling .edge-a{
+  animation:
+    curlA
+    .82s
+    cubic-bezier(.2,.75,.2,1)
+    forwards;
+}
+
+.fold-stage.curling .edge-b{
+  animation:
+    curlB
+    .9s
+    cubic-bezier(.2,.75,.2,1)
+    .08s
+    forwards;
+}
+
+.fold-stage.curling .edge-c{
+  animation:
+    curlC
+    .86s
+    cubic-bezier(.2,.75,.2,1)
+    .16s
+    forwards;
+}
+
+.fold-stage.curling .edge-d{
+  animation:
+    curlD
+    .94s
+    cubic-bezier(.2,.75,.2,1)
+    .02s
+    forwards;
+}
+
+@keyframes curlA{
+  0%{
+    opacity:0;
+    transform:
+      rotate(0)
+      translate(0,0)
+      scale(1);
+  }
+
+  20%{
+    opacity:1;
+  }
+
+  58%{
+    transform:
+      rotate(-18deg)
+      translate(9px,12px)
+      scale(.82);
+  }
+
+  100%{
+    opacity:.9;
+    transform:
+      rotate(-47deg)
+      translate(26px,28px)
+      scale(.58);
+  }
+}
+
+@keyframes curlB{
+  0%{
+    opacity:0;
+    transform:
+      rotate(0)
+      translate(0,0)
+      scale(1);
+  }
+
+  20%{opacity:1}
+
+  60%{
+    transform:
+      rotate(22deg)
+      translate(-11px,-9px)
+      scale(.82);
+  }
+
+  100%{
+    opacity:.9;
+    transform:
+      rotate(55deg)
+      translate(-28px,-23px)
+      scale(.56);
+  }
+}
+
+@keyframes curlC{
+  0%{
+    opacity:0;
+    transform:
+      rotate(0)
+      translate(0,0)
+      scale(1);
+  }
+
+  25%{opacity:1}
+
+  62%{
+    transform:
+      rotate(15deg)
+      translate(14px,0)
+      scale(.84);
+  }
+
+  100%{
+    opacity:.92;
+    transform:
+      rotate(39deg)
+      translate(34px,0)
+      scale(.52);
+  }
+}
+
+@keyframes curlD{
+  0%{
+    opacity:0;
+    transform:
+      rotate(0)
+      translate(0,0)
+      scale(1);
+  }
+
+  25%{opacity:1}
+
+  62%{
+    transform:
+      rotate(-17deg)
+      translate(-14px,0)
+      scale(.84);
+  }
+
+  100%{
+    opacity:.92;
+    transform:
+      rotate(-42deg)
+      translate(-35px,0)
+      scale(.52);
+  }
+}
+
+/* ---------------------------------------------------------
+   STAGE 4 — mushy compression
+--------------------------------------------------------- */
+
+.fold-stage.mushing .soft-paper{
+  animation:
+    mushPaper
+    .72s
+    cubic-bezier(.45,.05,.2,1)
+    forwards;
+}
+
+.fold-stage.mushing .paper-body{
+  animation:
+    mushBody
+    .72s
+    cubic-bezier(.45,.05,.2,1)
+    forwards;
+}
+
+@keyframes mushPaper{
+  0%{
+    transform:
+      scale(1)
+      rotate(0);
+  }
+
+  25%{
+    transform:
+      scale(.82,.72)
+      rotate(-4deg);
+  }
+
+  48%{
+    transform:
+      scale(.61,.68)
+      rotate(5deg);
+  }
+
+  72%{
+    transform:
+      scale(.43,.51)
+      rotate(-4deg);
+  }
+
+  100%{
+    transform:
+      scale(.29,.35)
+      rotate(3deg);
+  }
+}
+
+@keyframes mushBody{
+  0%{
+    transform:
+      scale(.68,.78)
+      skew(-2deg,1deg);
+  }
+
+  35%{
+    transform:
+      scale(.61,.65)
+      skew(7deg,-5deg)
+      rotate(4deg);
+  }
+
+  65%{
+    transform:
+      scale(.43,.52)
+      skew(-9deg,6deg)
+      rotate(-5deg);
+  }
+
+  100%{
+    transform:
+      scale(.27,.34)
+      skew(3deg,-2deg)
+      rotate(3deg);
+  }
+}
+
+/* CRANE */
+
 .emerging-crane{
   position:fixed;
   z-index:95;
@@ -243,43 +677,62 @@ textarea:focus{border-color:#222}
   pointer-events:none;
   opacity:0;
 }
+
 .emerging-crane img{
   display:block;
   width:100%;
   height:auto;
   filter:drop-shadow(0 7px 7px rgba(0,0,0,.12));
 }
+
 .emerging-crane.active{
-  animation:craneRadiate 1.45s cubic-bezier(.18,.72,.2,1) forwards;
+  animation:
+    craneRadiate
+    1.45s
+    cubic-bezier(.18,.72,.2,1)
+    forwards;
 }
+
 @keyframes craneRadiate{
   0%{
     opacity:0;
     transform:translate(0,8px) scale(.06) rotate(-7deg);
   }
+
   18%{
     opacity:1;
     transform:translate(0,-12px) scale(.18) rotate(-4deg);
   }
+
   42%{
     transform:
-      translate(calc(var(--travel-x)*.22),calc(var(--travel-y)*.22))
-      scale(.4) rotate(4deg);
+      translate(
+        calc(var(--travel-x)*.22),
+        calc(var(--travel-y)*.22)
+      )
+      scale(.4)
+      rotate(4deg);
   }
+
   68%{
     transform:
-      translate(calc(var(--travel-x)*.65),calc(var(--travel-y)*.65))
-      scale(.75) rotate(-3deg);
+      translate(
+        calc(var(--travel-x)*.65),
+        calc(var(--travel-y)*.65)
+      )
+      scale(.75)
+      rotate(-3deg);
   }
+
   100%{
     opacity:1;
     transform:
       translate(var(--travel-x),var(--travel-y))
-      scale(1) rotate(0);
+      scale(1)
+      rotate(0);
   }
 }
 
-/* settled crane */
 .crane{
   position:absolute;
   z-index:25;
@@ -290,18 +743,22 @@ textarea:focus{border-color:#222}
   cursor:pointer;
   animation:craneSettle .4s ease-out forwards;
 }
+
 .crane img{
   display:block;
   width:100%;
   filter:drop-shadow(0 6px 6px rgba(0,0,0,.1));
 }
+
 .crane:hover{transform:translateY(-5px)}
+
 @keyframes craneSettle{
   from{opacity:0;transform:scale(.8)}
   to{opacity:1;transform:scale(1)}
 }
 
-/* note */
+/* NOTE */
+
 .thought-note{
   position:absolute;
   z-index:60;
@@ -316,10 +773,12 @@ textarea:focus{border-color:#222}
   text-align:center;
   animation:noteIn .3s ease-out;
 }
+
 .thought-text{
   font:24px/1.45 Georgia,"Times New Roman",serif;
   overflow-wrap:anywhere;
 }
+
 .note-meta{
   margin-top:17px;
   color:#888;
@@ -327,39 +786,73 @@ textarea:focus{border-color:#222}
   letter-spacing:.16em;
   text-transform:uppercase;
 }
+
 @keyframes noteIn{
-  from{opacity:0;transform:translate(-50%,-46%) scale(.96)}
-  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  from{
+    opacity:0;
+    transform:translate(-50%,-46%) scale(.96);
+  }
+  to{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
 }
 
-/* release */
+/* RELEASE */
+
 .crane.releasing{
   pointer-events:none;
   animation:releaseFlight 1.7s ease-in forwards;
 }
+
 @keyframes releaseFlight{
-  0%{opacity:1;transform:translate(0,0) rotate(0)}
-  25%{transform:translate(35px,-20px) rotate(4deg)}
-  50%{transform:translate(90px,8px) rotate(-4deg)}
-  75%{transform:translate(165px,-35px) rotate(3deg)}
-  100%{opacity:0;transform:translate(300px,-110px) rotate(8deg)}
+  0%{
+    opacity:1;
+    transform:translate(0,0) rotate(0);
+  }
+  25%{
+    transform:translate(35px,-20px) rotate(4deg);
+  }
+  50%{
+    transform:translate(90px,8px) rotate(-4deg);
+  }
+  75%{
+    transform:translate(165px,-35px) rotate(3deg);
+  }
+  100%{
+    opacity:0;
+    transform:translate(300px,-110px) rotate(8deg);
+  }
 }
+
 .released-message{
   position:absolute;
   z-index:70;
-  left:50%;top:42%;
+  left:50%;
+  top:42%;
   transform:translate(-50%,-50%);
   white-space:nowrap;
   font:italic 25px Georgia,"Times New Roman",serif;
-  animation:releaseIn .25s ease-out,releaseOut 2.5s ease 1s forwards;
-}
-@keyframes releaseIn{from{opacity:0}to{opacity:1}}
-@keyframes releaseOut{
-  from{opacity:1}
-  to{opacity:0;transform:translate(-50%,-58%)}
+  animation:
+    releaseIn .25s ease-out,
+    releaseOut 2.5s ease 1s forwards;
 }
 
-/* welcome */
+@keyframes releaseIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes releaseOut{
+  from{opacity:1}
+  to{
+    opacity:0;
+    transform:translate(-50%,-58%);
+  }
+}
+
+/* WELCOME */
+
 .modal-backdrop{
   position:absolute;
   inset:0;
@@ -370,7 +863,9 @@ textarea:focus{border-color:#222}
   padding:25px;
   background:rgba(247,247,245,.84);
 }
+
 .modal-backdrop.hidden{display:none}
+
 .welcome{
   position:relative;
   width:min(510px,100%);
@@ -380,22 +875,26 @@ textarea:focus{border-color:#222}
   border-radius:15px;
   box-shadow:0 20px 55px rgba(0,0,0,.12);
 }
+
 .welcome h2{
   margin:0 45px 17px 0;
   font:400 30px Georgia,"Times New Roman",serif;
 }
+
 .welcome p{
   margin:0 0 17px;
   color:#555;
   font-size:14px;
   line-height:1.65;
 }
+
 .steps{
   margin-top:20px;
   color:#888;
   font-size:10px;
   letter-spacing:.14em;
 }
+
 .begin-button{
   margin-top:25px;
   padding:12px 23px;
@@ -406,11 +905,15 @@ textarea:focus{border-color:#222}
   cursor:pointer;
   font-size:13px;
 }
+
 .begin-button:hover{background:#333}
+
 .close-button{
   position:absolute;
-  top:9px;right:10px;
-  width:40px;height:40px;
+  top:9px;
+  right:10px;
+  width:40px;
+  height:40px;
   border:0;
   background:transparent;
   color:#777;
@@ -419,11 +922,22 @@ textarea:focus{border-color:#222}
 }
 
 @media(max-width:650px){
-  .page{width:calc(100% - 24px);padding-top:35px}
+  .page{
+    width:calc(100% - 24px);
+    padding-top:35px;
+  }
+
   .station{height:600px}
+
   .composer{height:145px}
+
   .thought-space{inset:0 0 145px}
-  .fold-button{width:110px;font-size:18px}
+
+  .fold-button{
+    width:110px;
+    font-size:18px;
+  }
+
   .welcome{padding:28px}
 }
 </style>
@@ -435,15 +949,19 @@ textarea:focus{border-color:#222}
 
 <header>
   <h1>Thought Origami</h1>
-  <div class="subtitle">fold a thought · notice it · let it go</div>
+  <div class="subtitle">
+    fold a thought · notice it · let it go
+  </div>
 </header>
 
 <main class="station">
 
   <div class="thought-space" id="thoughtSpace">
+
     <div class="empty-message" id="emptyMessage">
       A place for passing thoughts.
     </div>
+
   </div>
 
   <form class="composer" id="thoughtForm">
@@ -459,7 +977,9 @@ textarea:focus{border-color:#222}
       class="fold-button"
       id="foldButton"
     >
-      <span class="fold-label">Fold it</span>
+      <span class="fold-label">
+        Fold it
+      </span>
     </button>
 
   </form>
@@ -497,23 +1017,26 @@ textarea:focus{border-color:#222}
         type="button"
         class="begin-button"
         id="beginButton"
-      >Begin</button>
+      >
+        Begin
+      </button>
 
     </section>
+
   </div>
 
 </main>
 </div>
 
 <script>
-const welcomeModal = document.getElementById("welcomeModal");
-const beginButton = document.getElementById("beginButton");
-const closeWelcome = document.getElementById("closeWelcome");
-const thoughtForm = document.getElementById("thoughtForm");
-const thoughtInput = document.getElementById("thoughtInput");
-const foldButton = document.getElementById("foldButton");
-const thoughtSpace = document.getElementById("thoughtSpace");
-const emptyMessage = document.getElementById("emptyMessage");
+const welcomeModal=document.getElementById("welcomeModal");
+const beginButton=document.getElementById("beginButton");
+const closeWelcome=document.getElementById("closeWelcome");
+const thoughtForm=document.getElementById("thoughtForm");
+const thoughtInput=document.getElementById("thoughtInput");
+const foldButton=document.getElementById("foldButton");
+const thoughtSpace=document.getElementById("thoughtSpace");
+const emptyMessage=document.getElementById("emptyMessage");
 
 function beginGame(){
   welcomeModal.classList.add("hidden");
@@ -537,11 +1060,6 @@ function foldThought(thought){
   emptyMessage.style.opacity="0";
 
   const buttonRect=foldButton.getBoundingClientRect();
-
-  /*
-   * Move the actual white Fold it paper
-   * to the center of the thought field.
-   */
   const fieldRect=thoughtSpace.getBoundingClientRect();
 
   const paperWidth=168;
@@ -557,6 +1075,10 @@ function foldThought(thought){
     fieldRect.height/2-
     paperHeight/2;
 
+  /*
+   * The actual Fold it button becomes the
+   * sheet and physically travels to center.
+   */
   foldButton.style.position="fixed";
   foldButton.style.zIndex="90";
   foldButton.style.left=buttonRect.left+"px";
@@ -565,62 +1087,86 @@ function foldThought(thought){
   foldButton.style.height=buttonRect.height+"px";
   foldButton.style.margin="0";
   foldButton.style.pointerEvents="none";
-  foldButton.classList.add("moving");
+  foldButton.style.transition=
+    "left .58s cubic-bezier(.2,.78,.2,1),"+
+    "top .58s cubic-bezier(.2,.78,.2,1),"+
+    "box-shadow .58s ease";
 
   requestAnimationFrame(()=>{
-    foldButton.style.transition=
-      "left .58s cubic-bezier(.2,.78,.2,1),top .58s cubic-bezier(.2,.78,.2,1)";
     foldButton.style.left=centerX+"px";
     foldButton.style.top=centerY+"px";
+    foldButton.style.boxShadow=
+      "0 13px 25px rgba(0,0,0,.12)";
   });
 
   /*
-   * At center, hide the button and create
-   * a real paper folding stage.
+   * Once centered, replace the button with
+   * the soft folding sheet.
    */
   setTimeout(()=>{
 
     foldButton.style.visibility="hidden";
 
     const stage=document.createElement("div");
-    stage.className="fold-stage";
+    stage.className="fold-stage begin-soft";
     stage.style.left=centerX+"px";
     stage.style.top=centerY+"px";
 
-    const sheet=document.createElement("div");
-    sheet.className="sheet";
+    const softPaper=document.createElement("div");
+    softPaper.className="soft-paper";
 
-    const left=document.createElement("div");
-    left.className="flap left";
+    const body=document.createElement("div");
+    body.className="paper-body";
 
-    const right=document.createElement("div");
-    right.className="flap right";
+    const edgeA=document.createElement("div");
+    edgeA.className="soft-edge edge-a";
 
-    const top=document.createElement("div");
-    top.className="flap top";
+    const edgeB=document.createElement("div");
+    edgeB.className="soft-edge edge-b";
 
-    const bottom=document.createElement("div");
-    bottom.className="flap bottom";
+    const edgeC=document.createElement("div");
+    edgeC.className="soft-edge edge-c";
 
-    sheet.append(left,right,top,bottom);
-    stage.appendChild(sheet);
+    const edgeD=document.createElement("div");
+    edgeD.className="soft-edge edge-d";
+
+    softPaper.append(
+      body,
+      edgeA,
+      edgeB,
+      edgeC,
+      edgeD
+    );
+
+    stage.appendChild(softPaper);
     document.body.appendChild(stage);
 
-    requestAnimationFrame(()=>{
-      stage.classList.add("folding");
-    });
-
     /*
-     * Let the human-like folds finish,
-     * then compress into the final folded form.
+     * Small pause: the paper arrives and
+     * settles before folding.
      */
     setTimeout(()=>{
-      stage.classList.add("compact");
-    },900);
+      stage.classList.add("creasing");
+    },400);
+
+    /*
+     * Creases and deformation gradually
+     * become more pronounced.
+     */
+    setTimeout(()=>{
+      stage.classList.add("curling");
+    },850);
+
+    /*
+     * Final soft/mushy compression.
+     */
+    setTimeout(()=>{
+      stage.classList.add("mushing");
+    },1450);
 
     /*
      * Crane emerges only after the paper
-     * has actually folded.
+     * has completed the soft transformation.
      */
     setTimeout(()=>{
 
@@ -666,11 +1212,23 @@ function foldThought(thought){
 
       const emerging=document.createElement("div");
       emerging.className="emerging-crane";
+
       emerging.style.left=startX+"px";
       emerging.style.top=startY+"px";
-      emerging.style.setProperty("--travel-x",travelX+"px");
-      emerging.style.setProperty("--travel-y",travelY+"px");
-      emerging.appendChild(makeCraneImage());
+
+      emerging.style.setProperty(
+        "--travel-x",
+        travelX+"px"
+      );
+
+      emerging.style.setProperty(
+        "--travel-y",
+        travelY+"px"
+      );
+
+      emerging.appendChild(
+        makeCraneImage()
+      );
 
       document.body.appendChild(emerging);
 
@@ -678,6 +1236,10 @@ function foldThought(thought){
         emerging.classList.add("active");
       });
 
+      /*
+       * Restore button and create the
+       * clickable crane at the destination.
+       */
       setTimeout(()=>{
 
         emerging.remove();
@@ -691,6 +1253,8 @@ function foldThought(thought){
         foldButton.style.margin="";
         foldButton.style.pointerEvents="";
         foldButton.style.visibility="";
+        foldButton.style.transition="";
+        foldButton.style.boxShadow="";
 
         foldButton.disabled=false;
 
@@ -702,7 +1266,7 @@ function foldThought(thought){
 
       },1450);
 
-    },1550);
+    },2150);
 
   },650);
 }
@@ -715,8 +1279,14 @@ function createPermanentCrane(thought,x,y){
   crane.className="crane";
   crane.style.left=x+"px";
   crane.style.top=y+"px";
-  crane.setAttribute("aria-label","Release thought");
-  crane.appendChild(makeCraneImage());
+  crane.setAttribute(
+    "aria-label",
+    "Release thought"
+  );
+
+  crane.appendChild(
+    makeCraneImage()
+  );
 
   thoughtSpace.appendChild(crane);
 
@@ -746,11 +1316,14 @@ function releaseThought(crane,thought){
   setTimeout(()=>{
 
     note.remove();
+
     crane.classList.add("releasing");
 
     setTimeout(()=>{
+
       crane.remove();
       showReleasedMessage();
+
     },1700);
 
   },900);
@@ -759,50 +1332,71 @@ function releaseThought(crane,thought){
 function showReleasedMessage(){
 
   const message=document.createElement("div");
+
   message.className="released-message";
   message.textContent="Thought, released.";
 
   thoughtSpace.appendChild(message);
 
-  setTimeout(()=>message.remove(),3500);
+  setTimeout(
+    ()=>message.remove(),
+    3500
+  );
 }
 
-thoughtForm.addEventListener("submit",event=>{
+thoughtForm.addEventListener(
+  "submit",
+  event=>{
 
-  event.preventDefault();
-
-  if(foldButton.disabled)return;
-
-  const thought=thoughtInput.value.trim();
-
-  if(!thought){
-    thoughtInput.focus();
-    return;
-  }
-
-  thoughtInput.value="";
-  foldThought(thought);
-});
-
-thoughtInput.addEventListener("keydown",event=>{
-
-  if(event.key==="Enter"&&!event.shiftKey){
     event.preventDefault();
-    thoughtForm.requestSubmit();
+
+    if(foldButton.disabled)return;
+
+    const thought=
+      thoughtInput.value.trim();
+
+    if(!thought){
+
+      thoughtInput.focus();
+
+      return;
+    }
+
+    thoughtInput.value="";
+
+    foldThought(thought);
   }
+);
 
-});
+thoughtInput.addEventListener(
+  "keydown",
+  event=>{
 
-document.addEventListener("keydown",event=>{
+    if(
+      event.key==="Enter" &&
+      !event.shiftKey
+    ){
 
-  if(
-    event.key==="Escape" &&
-    !welcomeModal.classList.contains("hidden")
-  ){
-    beginGame();
+      event.preventDefault();
+
+      thoughtForm.requestSubmit();
+    }
   }
+);
 
-});
+document.addEventListener(
+  "keydown",
+  event=>{
+
+    if(
+      event.key==="Escape" &&
+      !welcomeModal.classList.contains("hidden")
+    ){
+
+      beginGame();
+    }
+  }
+);
 </script>
 
 </body>
