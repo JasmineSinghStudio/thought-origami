@@ -8,7 +8,9 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500&display=swap');
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -107,16 +109,20 @@ textarea:focus {
   background: #444;
 }
 
+
+/* =========================
+   ORIGAMI CRANE
+   ========================= */
+
 .crane {
   position: absolute;
   width: 150px;
-  height: 100px;
-  color: #777;
+  height: 115px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
   transition: transform .2s ease;
-  border: 0;
-  padding: 0;
-  background: transparent;
 }
 
 .crane:hover {
@@ -126,37 +132,43 @@ textarea:focus {
 .crane svg {
   width: 100%;
   height: 100%;
+  display: block;
   overflow: visible;
-  filter: drop-shadow(0 4px 4px rgba(0,0,0,.07));
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,.08));
 }
 
-.paper {
-  fill: #e8e8e6;
+.crane-main {
+  fill: #e9e9e7;
   stroke: #666;
-  stroke-width: 1;
+  stroke-width: 1.1;
   stroke-linejoin: round;
 }
 
-.paper-light {
+.crane-light {
   fill: #fafafa;
   stroke: #777;
-  stroke-width: .8;
+  stroke-width: .9;
   stroke-linejoin: round;
 }
 
-.paper-dark {
-  fill: #d8d8d6;
+.crane-dark {
+  fill: #d7d7d5;
   stroke: #777;
-  stroke-width: .8;
+  stroke-width: .9;
   stroke-linejoin: round;
 }
 
-.crease {
+.crane-fold {
   fill: none;
   stroke: #999;
-  stroke-width: .7;
+  stroke-width: .75;
   stroke-linecap: round;
 }
+
+
+/* =========================
+   THOUGHT NOTE
+   ========================= */
 
 .thought-note {
   position: absolute;
@@ -186,6 +198,16 @@ textarea:focus {
   text-transform: uppercase;
 }
 
+
+/* =========================
+   RELEASE ANIMATION
+   ========================= */
+
+.fly {
+  pointer-events: none;
+  animation: fly 1.7s ease-in forwards;
+}
+
 .released {
   position: absolute;
   z-index: 12;
@@ -197,10 +219,10 @@ textarea:focus {
   animation: released 2.1s ease forwards;
 }
 
-.fly {
-  pointer-events: none;
-  animation: fly 1.7s ease-in forwards;
-}
+
+/* =========================
+   WELCOME POPUP
+   ========================= */
 
 .welcome-backdrop {
   position: fixed;
@@ -234,12 +256,7 @@ textarea:focus {
   line-height: 1.65;
 }
 
-.welcome .instructions {
-  color: #222;
-  line-height: 1.55;
-}
-
-.welcome .steps {
+.steps {
   margin-top: 18px;
   color: #999;
   font-size: 10px;
@@ -269,8 +286,12 @@ textarea:focus {
   color: #777;
   cursor: pointer;
   font-size: 23px;
-  line-height: 1;
 }
+
+
+/* =========================
+   ANIMATIONS
+   ========================= */
 
 @keyframes noteIn {
   from {
@@ -285,34 +306,36 @@ textarea:focus {
 }
 
 @keyframes fly {
+
   0% {
     opacity: 1;
-    transform: translate(0,0) rotate(0deg);
+    transform: translate(0,0) rotate(0);
   }
 
-  18% {
-    transform: translate(30px,-18px) rotate(3deg);
+  20% {
+    transform: translate(35px,-18px) rotate(3deg);
   }
 
-  36% {
-    transform: translate(62px,8px) rotate(-4deg);
+  40% {
+    transform: translate(70px,8px) rotate(-4deg);
   }
 
-  54% {
-    transform: translate(105px,-24px) rotate(4deg);
+  60% {
+    transform: translate(115px,-25px) rotate(4deg);
   }
 
-  72% {
-    transform: translate(155px,-4px) rotate(-3deg);
+  80% {
+    transform: translate(165px,-5px) rotate(-3deg);
   }
 
   100% {
     opacity: 0;
-    transform: translate(270px,-82px) rotate(7deg);
+    transform: translate(280px,-90px) rotate(7deg);
   }
 }
 
 @keyframes released {
+
   0%, 12% {
     opacity: 0;
     transform: translate(-50%,-50%) translateY(8px);
@@ -320,7 +343,7 @@ textarea:focus {
 
   24%, 72% {
     opacity: 1;
-    transform: translate(-50%,-50%) translateY(0);
+    transform: translate(-50%,-50%);
   }
 
   100% {
@@ -329,7 +352,13 @@ textarea:focus {
   }
 }
 
+
+/* =========================
+   MOBILE
+   ========================= */
+
 @media (max-width: 600px) {
+
   .page {
     padding: 34px 14px 40px;
   }
@@ -344,7 +373,7 @@ textarea:focus {
 
   .crane {
     width: 125px;
-    height: 84px;
+    height: 96px;
   }
 
   .composer {
@@ -361,14 +390,17 @@ textarea:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
   }
 }
 </style>
 </head>
+
 
 <body>
 
@@ -383,10 +415,13 @@ textarea:focus {
   <main class="station">
 
     <div class="field" id="field">
+
       <div class="empty" id="empty">
         A place for passing thoughts.
       </div>
+
     </div>
+
 
     <form class="composer" id="composer">
 
@@ -396,7 +431,10 @@ textarea:focus {
         placeholder="Leave a thought here..."
       ></textarea>
 
-      <button class="fold-button" type="submit">
+      <button
+        class="fold-button"
+        type="submit"
+      >
         Fold it
       </button>
 
@@ -407,7 +445,7 @@ textarea:focus {
 </div>
 
 
-<!-- WELCOME POPUP -->
+<!-- WELCOME -->
 
 <div class="welcome-backdrop" id="welcome">
 
@@ -415,7 +453,6 @@ textarea:focus {
     class="welcome"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="welcomeTitle"
   >
 
     <button
@@ -427,7 +464,7 @@ textarea:focus {
       ×
     </button>
 
-    <h2 id="welcomeTitle">
+    <h2>
       A place to let a thought go.
     </h2>
 
@@ -435,7 +472,7 @@ textarea:focus {
       We all go through emotions. This game is meant to help you visualize your thoughts as you let them go.
     </p>
 
-    <p class="instructions">
+    <p>
       <strong>
         Write a thought. Click Fold it to turn it into a paper crane, then click the crane to let it go.
       </strong>
@@ -460,414 +497,527 @@ textarea:focus {
 
 <script>
 
-(() => {
+const field =
+  document.getElementById("field");
 
-  const field =
-    document.getElementById('field');
+const empty =
+  document.getElementById("empty");
 
-  const empty =
-    document.getElementById('empty');
+const composer =
+  document.getElementById("composer");
 
-  const composer =
-    document.getElementById('composer');
-
-  const input =
-    document.getElementById('thoughtInput');
-
-  const welcome =
-    document.getElementById('welcome');
-
-  const begin =
-    document.getElementById('begin');
-
-  const closeWelcome =
-    document.getElementById('closeWelcome');
+const input =
+  document.getElementById("thoughtInput");
 
 
-  /* THE ORIGAMI CRANE */
+/* =========================
+   TIGHT ORIGAMI CRANE
+   ========================= */
 
-  const craneSVG = `
+const craneSVG = `
 
-    <svg viewBox="0 0 180 120" aria-hidden="true">
+<svg
+  viewBox="0 0 180 130"
+  aria-hidden="true"
+>
 
-      <!-- main folded body -->
+  <!-- compact central body -->
 
-      <path
-        class="paper"
-        d="
-          M18 65
-          L78 42
-          L112 52
-          L151 31
-          L133 61
-          L162 72
-          L118 72
-          L92 102
-          L86 68
-          L45 86
-          Z
-        "
-      />
-
-      <!-- left wing -->
-
-      <path
-        class="paper-light"
-        d="
-          M78 42
-          L112 52
-          L86 68
-          L45 86
-          Z
-        "
-      />
-
-      <!-- right wing / head -->
-
-      <path
-        class="paper-dark"
-        d="
-          M112 52
-          L151 31
-          L133 61
-          L118 72
-          L86 68
-          Z
-        "
-      />
-
-      <!-- lower folded plane -->
-
-      <path
-        class="paper-light"
-        d="
-          M18 65
-          L78 42
-          L86 68
-          L45 86
-          Z
-        "
-      />
-
-      <!-- fold lines -->
-
-      <path
-        class="crease"
-        d="
-          M18 65
-          L86 68
-          L162 72
-        "
-      />
-
-      <path
-        class="crease"
-        d="
-          M78 42
-          L86 68
-          L92 102
-        "
-      />
-
-      <path
-        class="crease"
-        d="
-          M112 52
-          L118 72
-          L133 61
-        "
-      />
-
-      <path
-        class="crease"
-        d="
-          M45 86
-          L86 68
-          L118 72
-        "
-      />
-
-    </svg>
-
-  `;
+  <path
+    class="crane-main"
+    d="
+      M90 63
+      L67 48
+      L42 62
+      L69 75
+      L90 69
+      L111 75
+      L138 62
+      L113 48
+      Z
+    "
+  />
 
 
-  let craneCount = 0;
+  <!-- LEFT WING -->
+
+  <path
+    class="crane-light"
+    d="
+      M90 63
+      L67 48
+      L17 27
+      L45 68
+      L69 75
+      Z
+    "
+  />
 
 
-  function randomPosition() {
+  <!-- RIGHT WING -->
 
-    const rect =
-      field.getBoundingClientRect();
-
-    const maxX =
-      Math.max(
-        20,
-        rect.width - 175
-      );
-
-    const maxY =
-      Math.max(
-        20,
-        rect.height - 125
-      );
-
-    return {
-
-      x:
-        25 +
-        Math.random() *
-        Math.max(1, maxX - 25),
-
-      y:
-        25 +
-        Math.random() *
-        Math.max(1, maxY - 25)
-
-    };
-
-  }
+  <path
+    class="crane-dark"
+    d="
+      M90 63
+      L113 48
+      L163 27
+      L135 68
+      L111 75
+      Z
+    "
+  />
 
 
-  function makeCrane(thought) {
+  <!-- LEFT TAIL -->
 
-    empty.style.opacity = '0';
+  <path
+    class="crane-light"
+    d="
+      M69 75
+      L90 69
+      L61 108
+      L76 77
+      Z
+    "
+  />
 
 
-    const crane =
-      document.createElement('button');
+  <!-- RIGHT TAIL -->
 
-    crane.type = 'button';
+  <path
+    class="crane-dark"
+    d="
+      M111 75
+      L90 69
+      L119 108
+      L104 77
+      Z
+    "
+  />
 
-    crane.className =
-      'crane';
 
-    crane.setAttribute(
-      'aria-label',
-      'Release thought'
+  <!-- NECK -->
+
+  <path
+    class="crane-main"
+    d="
+      M96 69
+      L111 75
+      L130 40
+      L119 38
+      L102 61
+      Z
+    "
+  />
+
+
+  <!-- HEAD -->
+
+  <path
+    class="crane-light"
+    d="
+      M119 38
+      L130 40
+      L146 33
+      L132 31
+      Z
+    "
+  />
+
+
+  <!-- FOLD LINES -->
+
+  <path
+    class="crane-fold"
+    d="
+      M17 27
+      L90 63
+      L163 27
+    "
+  />
+
+  <path
+    class="crane-fold"
+    d="
+      M67 48
+      L90 69
+      L113 48
+    "
+  />
+
+  <path
+    class="crane-fold"
+    d="
+      M42 62
+      L90 63
+      L138 62
+    "
+  />
+
+  <path
+    class="crane-fold"
+    d="
+      M90 63
+      L69 75
+      L61 108
+    "
+  />
+
+  <path
+    class="crane-fold"
+    d="
+      M90 63
+      L111 75
+      L119 108
+    "
+  />
+
+  <path
+    class="crane-fold"
+    d="
+      M111 75
+      L130 40
+    "
+  />
+
+</svg>
+
+`;
+
+
+let craneCount = 0;
+
+
+/* =========================
+   POSITION CRANE
+   ========================= */
+
+function getPosition() {
+
+  const rect =
+    field.getBoundingClientRect();
+
+  const maxX =
+    Math.max(
+      20,
+      rect.width - 175
     );
 
+  const maxY =
+    Math.max(
+      20,
+      rect.height - 135
+    );
 
-    const position =
-      randomPosition();
+  return {
+
+    x:
+      25 +
+      Math.random() *
+      Math.max(
+        1,
+        maxX - 25
+      ),
+
+    y:
+      25 +
+      Math.random() *
+      Math.max(
+        1,
+        maxY - 25
+      )
+
+  };
+}
 
 
-    crane.style.left =
-      `${position.x}px`;
+/* =========================
+   FOLD THOUGHT
+   ========================= */
 
-    crane.style.top =
-      `${position.y}px`;
+function addCrane(thought) {
 
-
-    crane.innerHTML =
-      craneSVG;
+  empty.style.opacity = "0";
 
 
-    crane.addEventListener(
-      'click',
-      () => releaseThought(
+  const crane =
+    document.createElement(
+      "button"
+    );
+
+  crane.type = "button";
+
+  crane.className =
+    "crane";
+
+  crane.setAttribute(
+    "aria-label",
+    "Release thought"
+  );
+
+
+  const position =
+    getPosition();
+
+
+  crane.style.left =
+    position.x + "px";
+
+  crane.style.top =
+    position.y + "px";
+
+
+  crane.innerHTML =
+    craneSVG;
+
+
+  crane.addEventListener(
+    "click",
+    function() {
+
+      releaseThought(
         crane,
         thought
-      )
-    );
-
-
-    field.appendChild(crane);
-
-    craneCount++;
-
-  }
-
-
-  function releaseThought(
-    crane,
-    thought
-  ) {
-
-    if (
-      crane.classList.contains(
-        'fly'
-      )
-    ) {
-      return;
-    }
-
-
-    const note =
-      document.createElement(
-        'div'
       );
-
-    note.className =
-      'thought-note';
-
-
-    const thoughtText =
-      document.createElement(
-        'div'
-      );
-
-    thoughtText.className =
-      'thought-text';
-
-    thoughtText.textContent =
-      thought;
-
-
-    const meta =
-      document.createElement(
-        'div'
-      );
-
-    meta.className =
-      'meta';
-
-    meta.textContent =
-      'notice · acknowledge · release';
-
-
-    note.append(
-      thoughtText,
-      meta
-    );
-
-
-    field.appendChild(note);
-
-
-    window.setTimeout(
-      () => {
-
-        note.remove();
-
-        crane.classList.add(
-          'fly'
-        );
-
-
-        window.setTimeout(
-          () => {
-
-            crane.remove();
-
-            craneCount--;
-
-
-            if (
-              craneCount === 0
-            ) {
-
-              empty.style.opacity =
-                '1';
-
-            }
-
-
-            const released =
-              document.createElement(
-                'div'
-              );
-
-            released.className =
-              'released';
-
-            released.textContent =
-              'Thought, released.';
-
-
-            field.appendChild(
-              released
-            );
-
-
-            window.setTimeout(
-              () => released.remove(),
-              2100
-            );
-
-          },
-          1700
-        );
-
-      },
-      900
-    );
-
-  }
-
-
-  composer.addEventListener(
-    'submit',
-    event => {
-
-      event.preventDefault();
-
-
-      const thought =
-        input.value.trim();
-
-
-      if (!thought) {
-
-        input.focus();
-
-        return;
-
-      }
-
-
-      makeCrane(
-        thought
-      );
-
-
-      input.value = '';
-
-      input.focus();
 
     }
   );
 
 
-  function closeWelcomeModal() {
+  field.appendChild(
+    crane
+  );
 
-    welcome.remove();
+
+  craneCount++;
+
+}
+
+
+/* =========================
+   RELEASE THOUGHT
+   ========================= */
+
+function releaseThought(
+  crane,
+  thought
+) {
+
+  if (
+    crane.classList.contains(
+      "fly"
+    )
+  ) {
+    return;
+  }
+
+
+  const note =
+    document.createElement(
+      "div"
+    );
+
+  note.className =
+    "thought-note";
+
+
+  const text =
+    document.createElement(
+      "div"
+    );
+
+  text.className =
+    "thought-text";
+
+  text.textContent =
+    thought;
+
+
+  const meta =
+    document.createElement(
+      "div"
+    );
+
+  meta.className =
+    "meta";
+
+  meta.textContent =
+    "notice · acknowledge · release";
+
+
+  note.append(
+    text,
+    meta
+  );
+
+
+  field.appendChild(
+    note
+  );
+
+
+  setTimeout(
+    function() {
+
+      note.remove();
+
+      crane.classList.add(
+        "fly"
+      );
+
+
+      setTimeout(
+        function() {
+
+          crane.remove();
+
+          craneCount--;
+
+
+          if (
+            craneCount === 0
+          ) {
+
+            empty.style.opacity =
+              "1";
+
+          }
+
+
+          const released =
+            document.createElement(
+              "div"
+            );
+
+          released.className =
+            "released";
+
+          released.textContent =
+            "Thought, released.";
+
+
+          field.appendChild(
+            released
+          );
+
+
+          setTimeout(
+            function() {
+              released.remove();
+            },
+            2100
+          );
+
+        },
+        1700
+      );
+
+    },
+    900
+  );
+
+}
+
+
+/* =========================
+   ENTER KEY + BUTTON
+   ========================= */
+
+function foldThought() {
+
+  const thought =
+    input.value.trim();
+
+
+  if (!thought) {
 
     input.focus();
 
+    return;
+
   }
 
 
-  begin.addEventListener(
-    'click',
-    closeWelcomeModal
+  addCrane(
+    thought
   );
 
 
-  closeWelcome.addEventListener(
-    'click',
-    closeWelcomeModal
-  );
+  input.value = "";
+
+  input.focus();
+
+}
 
 
-  welcome.addEventListener(
-    'click',
-    event => {
+/* BUTTON */
 
-      if (
-        event.target ===
-        welcome
-      ) {
+composer.addEventListener(
+  "submit",
+  function(event) {
 
-        closeWelcomeModal();
+    event.preventDefault();
 
-      }
+    foldThought();
+
+  }
+);
+
+
+/* ENTER KEY */
+
+input.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+
+      event.preventDefault();
+
+      foldThought();
 
     }
+
+  }
+);
+
+
+/* =========================
+   WELCOME POPUP
+   ========================= */
+
+function closeWelcome() {
+
+  const welcome =
+    document.getElementById(
+      "welcome"
+    );
+
+  welcome.remove();
+
+  input.focus();
+
+}
+
+
+document
+  .getElementById("begin")
+  .addEventListener(
+    "click",
+    closeWelcome
   );
 
 
-})();
+document
+  .getElementById("closeWelcome")
+  .addEventListener(
+    "click",
+    closeWelcome
+  );
 
 </script>
 
